@@ -12,8 +12,8 @@ install the dependencies with `pip install -r requirements.txt`.
 
 ## Usage
 
-Run the `main.py`, with the env variables `"CLIENT_KEY"`, 
-`"CLIENT_SECRET"`, `"ACCESS_TOKEN"` and `"ACCESS_SECRET"` defined for the 
+Run the `main.py`, with the env variables `CLIENT_KEY`, 
+`CLIENT_SECRET`, `ACCESS_TOKEN` and `ACCESS_SECRET` defined for the 
 [Card Market API](https://api.cardmarket.com/ws/documentation/API_Main_Page).
 
 # Next steps
