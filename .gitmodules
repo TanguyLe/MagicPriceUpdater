@@ -1,0 +1,3 @@
+[submodule "MPUStrategies"]
+	path = MPUStrategies
+	url = git@github.com:TanguyLe/MPUStrategies.git
