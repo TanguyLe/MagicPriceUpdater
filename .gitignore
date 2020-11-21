@@ -140,7 +140,7 @@ dmypy.json
 cython_debug/
 
 creds.env
-mpu.log.*
-data.*
+mpu.log
+data
 
 .idea
