@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+from pandarallel import pandarallel
 
 from mpu.card_market_client import CardMarketClient
 from mpu.constants import DATA_PATH
@@ -25,6 +26,7 @@ force_update = False
 
 if __name__ == "__main__":
     set_log_conf()
+    pandarallel.initialize(progress_bar=True)
     logger = logging.getLogger(__name__)
     logger.info("Starting run")
 
@@ -54,7 +56,7 @@ if __name__ == "__main__":
 
     # Put the product prices in the df
     try:
-        stock_df["ActualPrice"] = stock_df["idProduct"].apply(get_product_price)
+        stock_df["ActualPrice"] = stock_df["idProduct"].parallel_apply(get_product_price)
     except Exception as error:
         logger.error(error)
         raise
