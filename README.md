@@ -17,7 +17,6 @@ Run the `main.py`, with the env variables `CLIENT_KEY`,
 [Card Market API](https://api.cardmarket.com/ws/documentation/API_Main_Page).
 
 # Next steps
-- speed improvement with async
 - memory improvements on market extracts
 - improve the strategies (on a private repo)
 - develop the update prices part
