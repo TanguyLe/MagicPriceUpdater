@@ -3,15 +3,17 @@ from functools import partial
 import sys
 from pathlib import Path
 
-from mpu.card_market_client import CardMarketClient, get_price_from_market_extract
+import pandas as pd
+
+from mpu.card_market_client import CardMarketClient
 from mpu.constants import DATA_PATH
 from mpu.log_conf import set_log_conf
 from mpu.market_extract import reset_market_extract, get_single_product_market_extract
-from mpu.stock_handling import compute_diffs_and_new_prices
 
 # To load the strategies
 sys.path.append(Path(__file__).parent.parent / "MPUStrategies")
 from mpu_strategies.compute_current_price import CurrentPriceComputer
+from mpu_strategies.errors import SuitableExamplesShortage
 from mpu_strategies.price_update import PriceUpdater
 
 
@@ -40,7 +42,15 @@ if __name__ == "__main__":
 
     def get_product_price(product_id):
         market_extract = _get_product_market_extract(product_id=product_id)
-        return current_price_computer.get_current_price_from_market_extract(market_extract=market_extract)
+        try:
+            return current_price_computer.get_current_price_from_market_extract(market_extract=market_extract)
+        except SuitableExamplesShortage:
+            # We try with a larger request in case of a lack of suitable examples
+            market_extract = _get_product_market_extract(product_id=product_id, max_results=500)
+            try:
+                return current_price_computer.get_current_price_from_market_extract(market_extract=market_extract)
+            except SuitableExamplesShortage:
+                return float("nan")
 
     # Put the product prices in the df
     try:
@@ -57,6 +67,6 @@ if __name__ == "__main__":
     # Saves the result
     stock_df.to_csv(STOCK_FILE_PATH)
     # Saves only the updated prices separately
-    stock_df.loc[stock_df["PriceToUpdate"]].to_csv(UPDATED_PRICES_STOCK_FILE_PATH)
+    stock_df.loc[~pd.isna(stock_df["NewPrice"])].to_csv(UPDATED_PRICES_STOCK_FILE_PATH)
 
     logger.info("End of the run")

@@ -40,7 +40,7 @@ def save_single_product_market_extract(product_id: str):
         json.dump(obj=product_data, fp=product_file)
 
 
-def get_single_product_market_extract(product_id: int, card_market_client: CardMarketClient) -> dict:
+def get_single_product_market_extract(product_id: int, card_market_client: CardMarketClient, max_results=100) -> dict:
     """Get a product price from the local file if possible, otherwise from the API"""
     market_extract = get_market_extract()
     product_id_str = str(product_id)
@@ -49,7 +49,9 @@ def get_single_product_market_extract(product_id: int, card_market_client: CardM
         return market_extract[product_id_str]
     except KeyError:
         product_data = {
-            "articles": card_market_client.get_product_articles(product_id=product_id, min_condition="EX"),
+            "articles": card_market_client.get_product_articles(
+                product_id=product_id, min_condition="EX", max_results=max_results
+            ),
             "info": card_market_client.get_product_info(product_id=product_id)
         }
         market_extract[product_id_str] = product_data
