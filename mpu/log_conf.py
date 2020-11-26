@@ -14,7 +14,7 @@ def set_log_conf() -> None:
                 "filename": LOG_PATH / "mpu.log",
                 "mode": "a",
                 "maxBytes": 1048576,
-                "backupCount": 2
+                "backupCount": 10
             },
             "console": {
                 "class": "logging.StreamHandler",
