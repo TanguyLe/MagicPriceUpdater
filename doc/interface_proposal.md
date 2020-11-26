@@ -45,8 +45,8 @@ Options:
     3. Update on Card Market of the comments of all the other products by adding a 
     marker `"<manualPrice>"` at the end if not already present.
     4. Save of a new file will only those not-updated cards at the same path than `<sfp>`
-    but named `notUpdatedStock-<date>.csv`.
-4. `stats`: Command unrelated to the workflow that generates a file at `<op>/stockStats.csv`,
+    but named `notUpdatedStock-<datetime>.csv`.
+4. `stats`: Command unrelated to the workflow that generates a file at `<op>/stockStats-<datetime>.csv`,
     With the following information:
     - % of foil/not foil
     - number of cards

@@ -20,5 +20,4 @@ Run the `main.py`, with the env variables `CLIENT_KEY`,
 - memory improvements on market extracts
 - improve the strategies (on a private repo)
 - develop the update prices part
-- define the final expected workflow
-- design the final interface (CLI ?)
+- implement the proposed interface
