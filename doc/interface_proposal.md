@@ -6,7 +6,7 @@
 MagicPriceUpdate: mpu
 
 Usage:
-  mpu getstock <current-price-strat> <price-update-strat> [--market-extract-path=<mep>, --output-path=<op>]
+  mpu getstock <current-price-strat> <price-update-strat> [--market-extract-path=<mep>, --output-path=<op>, --force-download]
   mpu update [--stock-file-path=<sfp>]
   mpu stats [--output-path=<op>]
   mpu (-h | --help)
@@ -15,6 +15,7 @@ Usage:
 Options:
   -h --help     Show this screen.
   --version     Show version.
+  --force-download Force the re-download of the market extract regardless if it exists already.
   --market-extract-path=<mep>  Market extract folder path [default: current-directory].
   --output-path=<op> Output folder path [default: current-directory].
   --stock-file-path=<sfp> Input stock file path [default: current-directory/stock.csv].
@@ -26,7 +27,7 @@ Options:
     1. Gets the current stock from CardMarket.
     2. For each product will try to use a market
     extract file named `<product_id>.json` in the `<mep>`.
-    3. If not found, will request the Card Market API to get the market extract and save it as
+    3. If not found or if `--force-download` was passed, will request the Card Market API to get the market extract and save it as
     `<product_id>.json`.
     4. For each product, will compute the current price using the
     market extract and the `<current-price-strat>`. It will create a new column named
