@@ -8,11 +8,12 @@ update selling prices on an online marketplace.
 ## Installation
 
 The project requires a python3.7 environment, then you just need to 
-install the dependencies with `pip install -r requirements.txt`.
+install the `mpu` with `pip install .` from within the project root directory.
 
 ## Usage
 
-Run the `main.py`, with the env variables `CLIENT_KEY`, 
+Run the `mpu` commands (for instance `mpu getstock`) in a terminal, 
+with the env variables `CLIENT_KEY`, 
 `CLIENT_SECRET`, `ACCESS_TOKEN` and `ACCESS_SECRET` defined for the 
 [Card Market API](https://api.cardmarket.com/ws/documentation/API_Main_Page).
 

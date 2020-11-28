@@ -1,9 +1,7 @@
 from logging import config
 
-from mpu.constants import LOG_PATH
 
-
-def set_log_conf() -> None:
+def set_log_conf(log_path) -> None:
     config.dictConfig(config={
         "version": 1,
         "handlers": {
@@ -11,7 +9,7 @@ def set_log_conf() -> None:
                 "class": "logging.handlers.RotatingFileHandler",
                 "level": "INFO",
                 "formatter": "default",
-                "filename": LOG_PATH / "mpu.log",
+                "filename": log_path + "/mpu.log",
                 "mode": "a",
                 "maxBytes": 1048576,
                 "backupCount": 10

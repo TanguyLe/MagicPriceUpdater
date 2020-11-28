@@ -1,7 +1,6 @@
 import logging
 from functools import partial
-import sys
-from pathlib import Path
+import os
 
 import pandas as pd
 from pandarallel import pandarallel
@@ -11,11 +10,9 @@ from mpu.constants import DATA_PATH
 from mpu.log_conf import set_log_conf
 from mpu.market_extract import reset_market_extract, get_single_product_market_extract
 
-# To load the strategies
-sys.path.append(Path(__file__).parent.parent / "MPUStrategies")
-from mpu_strategies.compute_current_price import CurrentPriceComputer
-from mpu_strategies.errors import SuitableExamplesShortage
-from mpu_strategies.price_update import PriceUpdater
+from mpu.MPUStrategies.mpu_strategies.compute_current_price import CurrentPriceComputer
+from mpu.MPUStrategies.mpu_strategies.errors import SuitableExamplesShortage
+from mpu.MPUStrategies.mpu_strategies.price_update import PriceUpdater
 
 
 STOCK_FILE_PATH = DATA_PATH / "stock.csv"
@@ -24,8 +21,9 @@ UPDATED_PRICES_STOCK_FILE_PATH = DATA_PATH / "updated_stock.csv"
 # this should be a cli argument to the script later on
 force_update = False
 
-if __name__ == "__main__":
-    set_log_conf()
+
+def main():
+    set_log_conf(log_path=os.getcwd())
     pandarallel.initialize(progress_bar=True)
     logger = logging.getLogger(__name__)
     logger.info("Starting run")
