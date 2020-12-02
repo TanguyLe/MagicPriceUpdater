@@ -14,6 +14,8 @@ from mpu.MPUStrategies.mpu_strategies.compute_current_price import CurrentPriceC
 from mpu.MPUStrategies.mpu_strategies.errors import SuitableExamplesShortage
 from mpu.MPUStrategies.mpu_strategies.price_update import PriceUpdater
 
+MANUAL_PRICE_MARKER = "<manualPrice>"
+
 
 def main(
         current_price_strategy: str,
@@ -56,7 +58,7 @@ def main(
 
     # Put the product prices in the df
     try:
-        stock_df["ActualPrice"] = stock_df["idProduct"].parallel_apply(get_product_price)
+        stock_df["SuggestedPrice"] = stock_df["idProduct"].parallel_apply(get_product_price)
     except Exception as error:
         logger.error(error)
         raise
@@ -65,6 +67,13 @@ def main(
 
     # Computes the new price
     stock_df = price_updater.update_df_with_new_prices(stock_df=stock_df)
+
+    # df preparation
+    stock_df["PriceApproval"] = 1
+    stock_df.loc[stock_df["Comments"].str.contains(MANUAL_PRICE_MARKER), "PriceApproval"] = 0
+    stock_df["RelativePriceDiff"] = (stock_df["Price"] - stock_df["ActualPrice"]) / stock_df["ActualPrice"]
+
+    stock_df = stock_df.sort_values(by=["PriceApproval", "RelativePriceDiff"], ascending=[True, False])
 
     # Saves the result
     stock_df.to_csv(output_path / "stock.csv")

@@ -21,4 +21,7 @@ with the env variables `CLIENT_KEY`,
 - memory improvements on market extracts
 - improve the strategies (on a private repo)
 - develop the update prices part
+- readme improvements
+- error handling improvement
+- pandarallel bug
 - implement the proposed interface
