@@ -16,12 +16,11 @@ Run the `mpu` commands (for instance `mpu getstock`) in a terminal,
 with the env variables `CLIENT_KEY`, 
 `CLIENT_SECRET`, `ACCESS_TOKEN` and `ACCESS_SECRET` defined for the 
 [Card Market API](https://api.cardmarket.com/ws/documentation/API_Main_Page).
+Help commands are available using `-h`.
 
 # Next steps
 - memory improvements on market extracts
 - improve the strategies (on a private repo)
-- develop the update prices part
-- readme improvements
-- error handling improvement
 - pandarallel bug
-- implement the proposed interface
+- implement update
+- implement stats
