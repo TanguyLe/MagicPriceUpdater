@@ -48,14 +48,16 @@ def getstock(
             resolve_path=True,
             help="Path where to save the output. Default is the current directory"
         ),
-        force_download: bool = typer.Option(False, help="Force download the market extract.")
+        force_download: bool = typer.Option(False, help="Force download the market extract."),
+        parallel_execution: bool = typer.Option(False, help="Parallelize the calls to the card market API.")
 ):
     main(
         current_price_strategy=current_price_strategy.value,
         price_update_strategy=price_update_strategy.value,
         market_extract_path=market_extract_path,
         output_path=output_path,
-        force_update=force_download
+        force_update=force_download,
+        parallel_execution=parallel_execution
     )
 
 

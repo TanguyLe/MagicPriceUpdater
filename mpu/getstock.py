@@ -24,10 +24,12 @@ def main(
         price_update_strategy: str,
         market_extract_path: Path,
         output_path: Path,
-        force_update: bool
+        force_update: bool,
+        parallel_execution: bool
 ):
     set_log_conf(log_path=os.getcwd())
-    pandarallel.initialize(progress_bar=False)
+    if parallel_execution:
+        pandarallel.initialize(progress_bar=False)
     logger = logging.getLogger(__name__)
     logger.info("Starting run")
 
@@ -65,10 +67,15 @@ def main(
 
     # Put the product prices in the df
     try:
-        stock_df["SuggestedPrice"] = stock_df["idProduct"].parallel_apply(get_product_price)
+        if parallel_execution:
+            product_price = stock_df["idProduct"].parallel_apply(get_product_price)
+        else:
+            product_price = stock_df["idProduct"].apply(get_product_price)
     except Exception as error:
         logger.error(error)
         raise
+    else:
+        stock_df["SuggestedPrice"] = product_price
     finally:
         stock_df.to_csv(output_path / "stock.csv")
 
