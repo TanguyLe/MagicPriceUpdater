@@ -1,18 +1,20 @@
 import logging
 from functools import partial
 import os
+import sys
 from pathlib import Path
 
-import pandas as pd
 from pandarallel import pandarallel
 
 from mpu.card_market_client import CardMarketClient
 from mpu.log_conf import set_log_conf
 from mpu.market_extract import set_market_extract_path, reset_market_extract, get_single_product_market_extract
 
-from mpu.MPUStrategies.mpu_strategies.compute_current_price import CurrentPriceComputer
-from mpu.MPUStrategies.mpu_strategies.errors import SuitableExamplesShortage
-from mpu.MPUStrategies.mpu_strategies.price_update import PriceUpdater
+# Extensions
+sys.path.append(str(Path(__file__).parent / "MPUStrategies"))
+from mpu_strategies.compute_current_price import CurrentPriceComputer
+from mpu_strategies.errors import SuitableExamplesShortage
+from mpu_strategies.price_update import PriceUpdater
 
 MANUAL_PRICE_MARKER = "<manualPrice>"
 
@@ -25,7 +27,7 @@ def main(
         force_update: bool
 ):
     set_log_conf(log_path=os.getcwd())
-    pandarallel.initialize(progress_bar=True)
+    pandarallel.initialize(progress_bar=False)
     logger = logging.getLogger(__name__)
     logger.info("Starting run")
 
@@ -45,7 +47,12 @@ def main(
     _get_product_market_extract = partial(get_single_product_market_extract, card_market_client=client)
 
     def get_product_price(product_id):
-        market_extract = _get_product_market_extract(product_id=product_id)
+        try:
+            market_extract = _get_product_market_extract(product_id=product_id)
+        except Exception as error:
+            logger.error(f"Error when trying to extract data for product {product_id}: {error.__repr__()}")
+            return float("nan")
+
         try:
             return current_price_computer.get_current_price_from_market_extract(market_extract=market_extract)
         except SuitableExamplesShortage:
@@ -65,19 +72,18 @@ def main(
     finally:
         stock_df.to_csv(output_path / "stock.csv")
 
-    # Computes the new price
-    stock_df = price_updater.update_df_with_new_prices(stock_df=stock_df)
-
     # df preparation
     stock_df["PriceApproval"] = 1
+    stock_df["Comments"] = stock_df["Comments"].fillna('')
     stock_df.loc[stock_df["Comments"].str.contains(MANUAL_PRICE_MARKER), "PriceApproval"] = 0
-    stock_df["RelativePriceDiff"] = (stock_df["Price"] - stock_df["ActualPrice"]) / stock_df["ActualPrice"]
+    stock_df["RelativePriceDiff"] = (stock_df["Price"] - stock_df["SuggestedPrice"]) / stock_df["SuggestedPrice"]
 
     stock_df = stock_df.sort_values(by=["PriceApproval", "RelativePriceDiff"], ascending=[True, False])
 
+    # Adding or updating new prices columns
+    stock_df = price_updater.get_updated_df(stock_df=stock_df)
+
     # Saves the result
     stock_df.to_csv(output_path / "stock.csv")
-    # Saves only the updated prices separately
-    stock_df.loc[~pd.isna(stock_df["NewPrice"])].to_csv(output_path / "updated_stock.csv")
 
     logger.info("End of the run")
