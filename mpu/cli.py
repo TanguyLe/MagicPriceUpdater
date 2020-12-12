@@ -28,6 +28,16 @@ PriceUpdaterStrat = enum.Enum(
 def getstock(
         current_price_strategy: CurrentPriceStrat,
         price_update_strategy: PriceUpdaterStrat,
+        strategies_options_path: Path = typer.Option(
+            None,
+            exists=True,
+            file_okay=True,
+            dir_okay=True,
+            writable=True,
+            readable=True,
+            resolve_path=True,
+            help="Path of the file to configure the strategies, if not provided not parameters are used"
+        ),
         market_extract_path: Path = typer.Option(
             os.getcwd(),
             exists=True,
@@ -54,6 +64,7 @@ def getstock(
     main(
         current_price_strategy=current_price_strategy.value,
         price_update_strategy=price_update_strategy.value,
+        strategies_options_path=strategies_options_path,
         market_extract_path=market_extract_path,
         output_path=output_path,
         force_update=force_download,

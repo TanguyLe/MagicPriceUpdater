@@ -1,8 +1,10 @@
+import json
 import logging
 from functools import partial
 import os
 import sys
 from pathlib import Path
+from typing import Optional
 
 from pandarallel import pandarallel
 import pandas as pd
@@ -18,11 +20,15 @@ from mpu_strategies.errors import SuitableExamplesShortage
 from mpu_strategies.price_update import PriceUpdater
 
 MANUAL_PRICE_MARKER = "<manualPrice>"
+CURRENT_PRICE_COMPUTER = "current_price"
+PRICE_UPDATER = "price_update"
+DEFAULT_STRAT_OPTIONS = {CURRENT_PRICE_COMPUTER: {}, PRICE_UPDATER: {}}
 
 
 def main(
         current_price_strategy: str,
         price_update_strategy: str,
+        strategies_options_path: Optional[Path],
         market_extract_path: Path,
         output_path: Path,
         force_update: bool,
@@ -34,9 +40,25 @@ def main(
     logger = logging.getLogger(__name__)
     logger.info("Starting run")
 
+    if strategies_options_path is not None:
+        with strategies_options_path.open('r') as strategies_options_file:
+            strategies_options = json.load(fp=strategies_options_file)
+    else:
+        strategies_options = DEFAULT_STRAT_OPTIONS
+
+    logger.info(
+        f"Using the following strategies: current_price={current_price_strategy} / price_update={price_update_strategy}"
+    )
+    logger.info(
+        f"With the following options: {strategies_options}"
+    )
     client = CardMarketClient()
-    current_price_computer = CurrentPriceComputer(strategy_name=current_price_strategy)
-    price_updater = PriceUpdater(strategy_name=price_update_strategy)
+    current_price_computer = CurrentPriceComputer(
+        strategy_name=current_price_strategy, **strategies_options[CURRENT_PRICE_COMPUTER]
+    )
+    price_updater = PriceUpdater(
+        strategy_name=price_update_strategy, **strategies_options[PRICE_UPDATER]
+    )
 
     stock_output_path = output_path / "stock.csv"
 
