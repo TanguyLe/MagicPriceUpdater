@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from pandarallel import pandarallel
+import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
 from mpu.log_conf import set_log_conf
@@ -112,5 +113,16 @@ def main(
     logger.info("Saving the stock...")
     stock_df.to_csv(stock_output_path)
     logger.info(f"Stock saved at {stock_output_path}.")
+
+    # A few stats already
+    total_current_price = (stock_df["Price"] * stock_df["Amount"]).sum()
+
+    non_set_prices = pd.isna(stock_df["SuggestedPrice"])
+    stock_df.loc[non_set_prices, "SuggestedPrice"] = stock_df.loc[non_set_prices, "Price"]
+    total_suggested_price = (stock_df["SuggestedPrice"] * stock_df["Amount"]).sum()
+
+    relative_diff = (total_current_price - total_suggested_price) / total_current_price * 100
+
+    logger.info(f"Worth: current:{total_current_price} / suggested:{total_suggested_price} / diff:{relative_diff:.2f}%")
 
     logger.info("End of the run.")
