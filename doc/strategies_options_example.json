@@ -1,6 +1,6 @@
 {
   "current_price": {
-    "optionA": "value-for-optionsA"
+    "trend_multiplier": 20
   },
   "price_update" : {}
 }
