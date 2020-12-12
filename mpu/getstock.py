@@ -8,7 +8,7 @@ from pandarallel import pandarallel
 
 from mpu.card_market_client import CardMarketClient
 from mpu.log_conf import set_log_conf
-from mpu.market_extract import set_market_extract_path, reset_market_extract, get_single_product_market_extract
+from mpu.market_extract import set_market_extract_path, get_single_product_market_extract
 
 # Extensions
 sys.path.append(str(Path(__file__).parent / "MPUStrategies"))
@@ -37,18 +37,25 @@ def main(
     current_price_computer = CurrentPriceComputer(strategy_name=current_price_strategy)
     price_updater = PriceUpdater(strategy_name=price_update_strategy)
 
+    stock_output_path = output_path / "stock.csv"
+
+    logger.info("Getting the stock from Card Market...")
     # Get the stock as a dataframe
     stock_df = client.get_stock_df()
+    logger.info("Stock retrieved.")
 
     # Set the market extract path
     set_market_extract_path(market_extract_parent_path=market_extract_path)
 
-    # Load the saved product prices
-    reset_market_extract(force_update=force_update)
+    _get_product_market_extract = partial(
+        get_single_product_market_extract,
+        card_market_client=client,
+        force_update=force_update
+    )
 
-    _get_product_market_extract = partial(get_single_product_market_extract, card_market_client=client)
-
-    def get_product_price(product_id):
+    def get_product_price(row):
+        stock_info = row.to_dict()
+        product_id = stock_info["idProduct"]
         try:
             market_extract = _get_product_market_extract(product_id=product_id)
         except Exception as error:
@@ -56,29 +63,39 @@ def main(
             return float("nan")
 
         try:
-            return current_price_computer.get_current_price_from_market_extract(market_extract=market_extract)
+            return current_price_computer.get_current_price_from_market_extract(
+                stock_info=stock_info, market_extract=market_extract
+            )
         except SuitableExamplesShortage:
             # We try with a larger request in case of a lack of suitable examples
             market_extract = _get_product_market_extract(product_id=product_id, max_results=500)
             try:
-                return current_price_computer.get_current_price_from_market_extract(market_extract=market_extract)
+                return current_price_computer.get_current_price_from_market_extract(
+                    stock_info=stock_info, market_extract=market_extract
+                )
             except SuitableExamplesShortage:
                 return float("nan")
 
+    logger.info("Computing the new prices...")
     # Put the product prices in the df
     try:
         if parallel_execution:
-            product_price = stock_df["idProduct"].parallel_apply(get_product_price)
+            product_price = stock_df.parallel_apply(get_product_price, axis="columns")
         else:
-            product_price = stock_df["idProduct"].apply(get_product_price)
+            product_price = stock_df.apply(get_product_price, axis="columns")
     except Exception as error:
+        logger.error("An error happened while computing prices.")
         logger.error(error)
         raise
     else:
         stock_df["SuggestedPrice"] = product_price
     finally:
-        stock_df.to_csv(output_path / "stock.csv")
+        logger.info("Prices computing ended.")
+        logger.info("Saving the stock before computing the new columns...")
+        stock_df.to_csv(path_or_buf=stock_output_path)
+        logger.info(f"Stock saved at {stock_output_path}.")
 
+    logger.info("Computing the new columns...")
     # df preparation
     stock_df["PriceApproval"] = 1
     stock_df["Comments"] = stock_df["Comments"].fillna('')
@@ -89,8 +106,11 @@ def main(
 
     # Adding or updating new prices columns
     stock_df = price_updater.get_updated_df(stock_df=stock_df)
+    logger.info("New columns computing ended.")
 
     # Saves the result
-    stock_df.to_csv(output_path / "stock.csv")
+    logger.info("Saving the stock...")
+    stock_df.to_csv(stock_output_path)
+    logger.info(f"Stock saved at {stock_output_path}.")
 
-    logger.info("End of the run")
+    logger.info("End of the run.")
