@@ -2,9 +2,10 @@ import logging
 import sys
 from contextlib import contextmanager
 from logging import config
+from pathlib import Path
 
 
-def set_log_conf(log_path) -> None:
+def set_log_conf(log_path: Path) -> None:
     config.dictConfig(
         config={
             "version": 1,
@@ -13,7 +14,7 @@ def set_log_conf(log_path) -> None:
                     "class": "logging.handlers.RotatingFileHandler",
                     "level": "INFO",
                     "formatter": "default",
-                    "filename": log_path + "/mpu.log",
+                    "filename": log_path / "mpu.log",
                     "mode": "a",
                     "maxBytes": 1048576,
                     "backupCount": 10,

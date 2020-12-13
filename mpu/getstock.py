@@ -1,5 +1,4 @@
 import logging
-import os
 from pathlib import Path
 from typing import Optional
 
@@ -69,9 +68,9 @@ def main(
     force_update: bool,
     parallel_execution: bool,
 ):
-    set_log_conf(log_path=os.getcwd())
+    set_log_conf(log_path=Path.cwd())
     logger = logging.getLogger(__name__)
-    logger.info("Starting run")
+    logger.info("Starting getstock...")
 
     if parallel_execution:
         with redirect_stdout_and_err_to_logger(logger=logger):
@@ -106,7 +105,6 @@ def main(
     }
 
     logger.info("Getting the stock from Card Market...")
-    # Get the stock as a dataframe
     stock_df = client.get_stock_df()
     logger.info("Stock retrieved.")
 
@@ -153,4 +151,4 @@ def main(
         f"/ diff:{basic_stats.relative_diff:.2f}%"
     )
 
-    logger.info("End of the run.")
+    logger.info("getstock complete.")

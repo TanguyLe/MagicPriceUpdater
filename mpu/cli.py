@@ -1,11 +1,11 @@
 import enum
-import os
 import sys
 from pathlib import Path
 
 import typer
 
-from mpu.getstock import main
+from mpu.getstock import main as main_getstock
+from mpu.stats import main as main_stats
 
 # Extensions
 sys.path.append(str(Path(__file__).parent / "MPUStrategies"))
@@ -39,7 +39,7 @@ def getstock(
         help="Path of the file to configure the strategies, if not provided not parameters are used",
     ),
     market_extract_path: Path = typer.Option(
-        os.getcwd(),
+        Path.cwd(),
         exists=True,
         file_okay=False,
         dir_okay=True,
@@ -49,7 +49,7 @@ def getstock(
         help="Path where to save the market extract. Default is the current directory",
     ),
     output_path: Path = typer.Option(
-        os.getcwd(),
+        Path.cwd(),
         exists=True,
         file_okay=False,
         dir_okay=True,
@@ -65,7 +65,7 @@ def getstock(
         False, help="Parallelize the calls to the card market API."
     ),
 ):
-    main(
+    main_getstock(
         current_price_strategy=current_price_strategy.value,
         price_update_strategy=price_update_strategy.value,
         strategies_options_path=strategies_options_path,
@@ -82,8 +82,19 @@ def update():
 
 
 @app.command()
-def stats():
-    raise NotImplementedError("stats is not implemented yet.")
+def stats(
+    output_path: Path = typer.Option(
+        Path.cwd(),
+        exists=True,
+        file_okay=False,
+        dir_okay=True,
+        writable=True,
+        readable=True,
+        resolve_path=True,
+        help="Path where to save the output. Default is the current directory",
+    ),
+):
+    main_stats(output_path=output_path)
 
 
 if __name__ == "__main__":

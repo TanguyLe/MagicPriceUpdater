@@ -23,12 +23,14 @@ class OAuthAuthenticatedClient:
     """Generic client to handle OAuth auth with fixed credentials from the env"""
 
     def __init__(self) -> None:
+        logger.info(f"Setting up an OAuth client...")
         self.auth = OAuth1Auth(
             client_id=os.environ["CLIENT_KEY"],
             client_secret=os.environ["CLIENT_SECRET"],
             token=os.environ["ACCESS_TOKEN"],
             token_secret=os.environ["ACCESS_SECRET"],
         )
+        logger.info(f"Client initialized.")
 
     def _get_api_call(
         self, url: furl, params: Optional[dict] = None
@@ -52,12 +54,16 @@ class CardMarketClient(OAuthAuthenticatedClient):
     CARD_MARKET_API_URL = furl("https://api.cardmarket.com/ws/v2.0/output.json")
 
     def get_stock_df(self) -> pd.DataFrame:
+        logger.info("Getting the stock from Card Market...")
+
         response = self._get_api_call(url=self.CARD_MARKET_API_URL / "stock/file")
         stock_string = response.json()["stock"]
 
-        return convert_base64_gzipped_string_to_dataframe(
+        result = convert_base64_gzipped_string_to_dataframe(
             b64_zipped_string=stock_string
         )
+        logger.info("Stock retrieved.")
+        return result
 
     def get_product_info(self, product_id: int) -> dict:
         call_url = self.CARD_MARKET_API_URL / f"/products/{product_id}"
