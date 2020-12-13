@@ -1,3 +1,6 @@
+import logging
+import sys
+from contextlib import contextmanager
 from logging import config
 
 
@@ -49,3 +52,31 @@ def set_log_conf(log_path) -> None:
             },
         }
     })
+
+
+class StreamToLogger:
+    """Fake file-like stream object that redirects writes to a logger instance."""
+    def __init__(self, logger, level):
+        self.logger = logger
+        self.level = level
+
+    def write(self, message):
+        message = message.rstrip().lstrip(logging.getLevelName(self.level) + ': ')
+        if message not in ['', '\n']:
+            self.logger.log(self.level, message)
+
+
+@contextmanager
+def redirect_stdout_and_err_to_logger(logger: logging.Logger):
+    """Redirects stdout and stderr to a logger"""
+    previous_stdout = sys.stdout
+    previous_stderr = sys.stderr
+
+    sys.stdout = StreamToLogger(logger=logger, level=logging.INFO)
+    sys.stderr = StreamToLogger(logger=logger, level=logging.ERROR)
+
+    try:
+        yield
+    finally:
+        sys.stdout = previous_stdout
+        sys.stderr = previous_stderr

@@ -7,7 +7,7 @@ from pandarallel import pandarallel
 import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
-from mpu.log_conf import set_log_conf
+from mpu.log_utils import set_log_conf, redirect_stdout_and_err_to_logger
 from mpu.market_extract import set_market_extract_path, get_single_product_market_extract
 from mpu.stock_handling import prepare_stock_df, get_basic_stats
 from mpu.strategies_utils import get_strategies_options
@@ -61,12 +61,12 @@ def main(
         parallel_execution: bool
 ):
     set_log_conf(log_path=os.getcwd())
-
-    if parallel_execution:
-        pandarallel.initialize(progress_bar=False)
-
     logger = logging.getLogger(__name__)
     logger.info("Starting run")
+
+    if parallel_execution:
+        with redirect_stdout_and_err_to_logger(logger=logger):
+            pandarallel.initialize(progress_bar=False)
 
     stock_output_path = output_path / "stock.csv"
     strategies_options = get_strategies_options(strategies_options_path=strategies_options_path)
