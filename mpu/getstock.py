@@ -12,7 +12,7 @@ from mpu_strategies.price_update import PriceUpdater
 from pandarallel import pandarallel
 
 from mpu.card_market_client import CardMarketClient
-from mpu.log_utils import redirect_stdout_and_err_to_logger, set_log_conf
+from mpu.log_utils import redirect_stdout_and_err_to_logger
 from mpu.market_extract import (
     get_single_product_market_extract,
     set_market_extract_path,
@@ -70,7 +70,6 @@ def main(
     force_update: bool,
     parallel_execution: bool,
 ):
-    set_log_conf(log_path=Path.cwd())
     logger = logging.getLogger(__name__)
     logger.info("Starting getstock...")
 

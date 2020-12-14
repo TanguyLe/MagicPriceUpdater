@@ -1,10 +1,13 @@
 import enum
+import functools
 import sys
 from pathlib import Path
+from typing import Callable
 
 import typer
 
 from mpu.getstock import main as main_getstock
+from mpu.log_utils import set_log_conf
 from mpu.stats import main as main_stats
 from mpu.update import main as main_update
 
@@ -25,7 +28,20 @@ PriceUpdaterStrat = enum.Enum(
 )
 
 
+def log_setup(func: Callable):
+    """wrapper to factoriser the logger setup"""
+
+    set_log_conf(log_path=Path.cwd())
+
+    @functools.wraps(wrapped=func)
+    def wrapped_func(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    return wrapped_func
+
+
 @app.command()
+@log_setup
 def getstock(
     current_price_strategy: CurrentPriceStrat,
     price_update_strategy: PriceUpdaterStrat,
@@ -84,6 +100,7 @@ def getstock(
 
 
 @app.command()
+@log_setup
 def update(
     stock_file_path: Path = typer.Option(
         Path.cwd() / "stock.csv",
@@ -105,6 +122,7 @@ def update(
 
 
 @app.command()
+@log_setup
 def stats(
     output_path: Path = typer.Option(
         Path.cwd(),

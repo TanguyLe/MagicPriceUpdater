@@ -4,11 +4,9 @@ from pathlib import Path
 import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
-from mpu.log_utils import set_log_conf
 
 
 def main(stock_file_path: Path, yes_to_confirmation:bool):
-    set_log_conf(log_path=Path.cwd())
     logger = logging.getLogger(__name__)
     logger.info("Update stats...")
 
@@ -26,7 +24,9 @@ def main(stock_file_path: Path, yes_to_confirmation:bool):
     new_price = (stock_to_update["SuggestedPrice"] * stock_to_update["Amount"]).sum()
 
     stock_to_update = stock_to_update[["idArticle", "Comments", "Amount", "SuggestedPrice"]]
-    stock_to_update = stock_to_update.rename(columns={"SuggestedPrice": "price", "Comments": "comments", "Amount": "count"})
+    stock_to_update = stock_to_update.rename(
+        columns={"SuggestedPrice": "price", "Comments": "comments", "Amount": "count"}
+    )
 
     to_update_data = list(stock_to_update.T.to_dict().values())
 

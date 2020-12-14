@@ -4,11 +4,9 @@ from pathlib import Path
 import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
-from mpu.log_utils import set_log_conf
 
 
 def main(output_path: Path):
-    set_log_conf(log_path=Path.cwd())
     logger = logging.getLogger(__name__)
     logger.info("Starting stats...")
 
