@@ -6,21 +6,22 @@
 MagicPriceUpdate: mpu
 
 Usage:
-  mpu getstock <current-price-strat> <price-update-strat> [--market-extract-path=<mep>, 
-    --strategies-options-path=<sep> --output-path=<op>, --force-download]
-  mpu update [--stock-file-path=<sfp> --yes-to-confirmation|-y]
-  mpu stats [--output-path=<op>]
+  mpu getstock <current-price-strat> <price-update-strat> [--market-extract-path|-mep=<mep>, 
+    --strategies-options-path|sop=<sop> --output-path|op=<op>, 
+    --force-download|-f, --parallel-execution|-p]
+  mpu update [--stock-file-path|sfp=<sfp> --yes-to-confirmation|-y]
+  mpu stats [--output-path|op=<op>]
   mpu (-h | --help)
   mpu --version
 
 Options:
   -h --help     Show this screen.
   --version     Show version.
-  --force-download Force the re-download of the market extract regardless if it exists already.
-  --market-extract-path=<mep>  Market extract folder path [default: current-directory].
-  --strategies-options-path=<sep> Path to the strategy options. If not provided, no options are used [default: None].
-  --output-path=<op> Output folder path [default: current-directory].
-  --stock-file-path=<sfp> Input stock file path [default: current-directory/stock.csv].
+  --force-download|-f Force the re-download of the market extract regardless if it exists already.
+  --market-extract-path|-mep=<mep>  Market extract folder path [default: current-directory].
+  --strategies-options-path|-sop=<sop> Path to the strategy options. If not provided, no options are used [default: None].
+  --output-path|-op=<op> Output folder path [default: current-directory].
+  --stock-file-path|-sfp=<sfp> Input stock file path [default: current-directory/stock.csv].
   --yes-to-confirmation|-y Prevents the user from being asked for confirmation.
 ```
 

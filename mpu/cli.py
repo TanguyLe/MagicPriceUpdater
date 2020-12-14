@@ -31,6 +31,8 @@ def getstock(
     price_update_strategy: PriceUpdaterStrat,
     strategies_options_path: Path = typer.Option(
         None,
+        "--strategies-options-path",
+        "-sop",
         exists=True,
         file_okay=True,
         dir_okay=True,
@@ -41,6 +43,8 @@ def getstock(
     ),
     market_extract_path: Path = typer.Option(
         Path.cwd(),
+        "--market-extract-path",
+        "--mep",
         exists=True,
         file_okay=False,
         dir_okay=True,
@@ -51,6 +55,8 @@ def getstock(
     ),
     output_path: Path = typer.Option(
         Path.cwd(),
+        "--output-path",
+        "-op",
         exists=True,
         file_okay=False,
         dir_okay=True,
@@ -60,10 +66,10 @@ def getstock(
         help="Path where to save the output. Default is the current directory",
     ),
     force_download: bool = typer.Option(
-        False, help="Force download the market extract."
+        False, "--force-download", "-f", help="Force download the market extract."
     ),
     parallel_execution: bool = typer.Option(
-        False, help="Parallelize the calls to the card market API."
+        True, "--parallel-execution", "-p", help="Parallelize the calls to the card market API."
     ),
 ):
     main_getstock(
@@ -81,6 +87,8 @@ def getstock(
 def update(
     stock_file_path: Path = typer.Option(
         Path.cwd() / "stock.csv",
+        "--stock-file-path",
+        "-sfp",
         exists=True,
         file_okay=True,
         dir_okay=True,
@@ -100,6 +108,7 @@ def update(
 def stats(
     output_path: Path = typer.Option(
         Path.cwd(),
+        "--output-path", "-op",
         exists=True,
         file_okay=False,
         dir_okay=True,
