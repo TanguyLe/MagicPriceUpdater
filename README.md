@@ -22,3 +22,4 @@ Help commands are available using `-h`.
 - improve the strategies (on a private repo)
 - split update logic into multiple requests
 - ask for more confirmation ?
+- Excel support ?
