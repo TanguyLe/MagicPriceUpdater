@@ -20,5 +20,5 @@ Help commands are available using `-h`.
 
 # Next steps
 - improve the strategies (on a private repo)
-- factor log setup
-- factor stock csv name
+- split update logic into multiple requests
+- ask for more confirmation ?

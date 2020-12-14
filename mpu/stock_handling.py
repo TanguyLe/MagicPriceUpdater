@@ -1,6 +1,7 @@
 import base64
 import gzip
 import io
+from pathlib import Path
 from typing import NamedTuple
 
 import pandas as pd
@@ -10,6 +11,11 @@ class BasicStats(NamedTuple):
     total_current_price: float
     total_suggested_price: float
     relative_diff: float
+
+
+def get_stock_file_path(folder_path: Path) -> Path:
+    """Constructs the stock file path from a folder path"""
+    return folder_path / "stock.csv"
 
 
 def convert_base64_gzipped_string_to_dataframe(b64_zipped_string: str) -> pd.DataFrame:

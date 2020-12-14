@@ -17,16 +17,17 @@ from mpu.market_extract import (
     get_single_product_market_extract,
     set_market_extract_path,
 )
-from mpu.stock_handling import get_basic_stats, prepare_stock_df
+from mpu.stock_handling import get_basic_stats, prepare_stock_df, get_stock_file_path
 
 
 def get_product_price(
     row: pd.Series,
     current_price_computer: CurrentPriceComputer,
-    logger: logging.Logger,
     card_market_client: CardMarketClient,
     force_update: bool,
 ) -> float:
+    logger = logging.getLogger(__name__)
+
     stock_info: dict = row.to_dict()
     product_id = stock_info["idProduct"]
     try:
@@ -77,7 +78,7 @@ def main(
         with redirect_stdout_and_err_to_logger(logger=logger):
             pandarallel.initialize(progress_bar=False)
 
-    stock_output_path = output_path / "stock.csv"
+    stock_output_path = get_stock_file_path(folder_path=output_path)
     strategies_options = get_strategies_options(
         strategies_options_path=strategies_options_path
     )
@@ -101,7 +102,6 @@ def main(
         "axis": "columns",
         "current_price_computer": current_price_computer,
         "card_market_client": client,
-        "logger": logger,
         "force_update": force_update,
     }
 

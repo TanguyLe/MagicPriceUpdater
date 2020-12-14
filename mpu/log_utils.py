@@ -1,8 +1,10 @@
+import functools
 import logging
 import sys
 from contextlib import contextmanager
 from logging import config
 from pathlib import Path
+from typing import Callable
 
 
 def set_log_conf(log_path: Path) -> None:
@@ -84,3 +86,15 @@ def redirect_stdout_and_err_to_logger(logger: logging.Logger):
     finally:
         sys.stdout = previous_stdout
         sys.stderr = previous_stderr
+
+
+def log_setup(func: Callable):
+    """wrapper to factoriser the logger setup"""
+
+    set_log_conf(log_path=Path.cwd())
+
+    @functools.wraps(wrapped=func)
+    def wrapped_func(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    return wrapped_func
