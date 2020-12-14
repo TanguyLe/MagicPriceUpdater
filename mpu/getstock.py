@@ -106,10 +106,7 @@ def main(
         "force_update": force_update,
     }
 
-    logger.info("Getting the stock from Card Market...")
     stock_df = client.get_stock_df()
-    logger.info("Stock retrieved.")
-
     logger.info("Computing the new prices...")
     # Put the product prices in the df
     try:
@@ -141,7 +138,7 @@ def main(
 
     # Saves the result
     logger.info("Saving the stock...")
-    stock_df.to_csv(stock_output_path)
+    stock_df.to_csv(path_or_buf=stock_output_path, index=False)
     logger.info(f"Stock saved at {stock_output_path}.")
 
     # A few stats already

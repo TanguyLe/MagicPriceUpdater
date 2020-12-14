@@ -6,6 +6,7 @@ import typer
 
 from mpu.getstock import main as main_getstock
 from mpu.stats import main as main_stats
+from mpu.update import main as main_update
 
 # Extensions
 sys.path.append(str(Path(__file__).parent / "MPUStrategies"))
@@ -77,8 +78,19 @@ def getstock(
 
 
 @app.command()
-def update():
-    raise NotImplementedError("update is not implemented yet.")
+def update(
+    stock_file_path: Path = typer.Option(
+        Path.cwd() / "stock.csv",
+        exists=True,
+        file_okay=True,
+        dir_okay=True,
+        writable=True,
+        readable=True,
+        resolve_path=True,
+        help="Path where to get the stock df. Default is the current directory's 'stock.csv'",
+    ),
+) -> None:
+    main_update(stock_file_path=stock_file_path)
 
 
 @app.command()
@@ -93,7 +105,7 @@ def stats(
         resolve_path=True,
         help="Path where to save the output. Default is the current directory",
     ),
-):
+) -> None:
     main_stats(output_path=output_path)
 
 

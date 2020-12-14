@@ -19,8 +19,6 @@ with the env variables `CLIENT_KEY`,
 Help commands are available using `-h`.
 
 # Next steps
-- memory improvements on market extracts
 - improve the strategies (on a private repo)
-- pandarallel bug
-- implement update
-- implement stats
+- factor log setup
+- factor stock csv name
