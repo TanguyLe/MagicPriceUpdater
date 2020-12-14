@@ -72,7 +72,10 @@ def getstock(
         False, "--force-download", "-f", help="Force download the market extract."
     ),
     parallel_execution: bool = typer.Option(
-        True, "--parallel-execution", "-p", help="Parallelize the calls to the card market API."
+        True,
+        "--parallel-execution",
+        "-p",
+        help="Parallelize the calls to the card market API.",
     ),
 ):
     main_getstock(
@@ -102,10 +105,15 @@ def update(
         help="Path where to get the stock df. Default is the current directory's 'stock.csv'",
     ),
     yes_to_confirmation: bool = typer.Option(
-        False, "--yes-to-confirmation", "-y", help="Prevents confirmation prompt from appearing."
-    )
+        False,
+        "--yes-to-confirmation",
+        "-y",
+        help="Prevents confirmation prompt from appearing.",
+    ),
 ) -> None:
-    main_update(stock_file_path=stock_file_path, yes_to_confirmation=yes_to_confirmation)
+    main_update(
+        stock_file_path=stock_file_path, yes_to_confirmation=yes_to_confirmation
+    )
 
 
 @app.command()
@@ -113,7 +121,8 @@ def update(
 def stats(
     output_path: Path = typer.Option(
         Path.cwd(),
-        "--output-path", "-op",
+        "--output-path",
+        "-op",
         exists=True,
         file_okay=False,
         dir_okay=True,

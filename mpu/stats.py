@@ -10,7 +10,9 @@ def main(output_path: Path):
     logger = logging.getLogger(__name__)
     logger.info("Starting stats...")
 
-    stats_output_path = output_path / f"stockStats-{pd.Timestamp('now').isoformat()}.csv"
+    stats_output_path = (
+        output_path / f"stockStats-{pd.Timestamp('now').isoformat()}.csv"
+    )
 
     client = CardMarketClient()
     stock_df = client.get_stock_df()
@@ -19,10 +21,15 @@ def main(output_path: Path):
 
     stats_df = pd.DataFrame(index=["value"])
 
-    foil_stats = stock_df.replace(to_replace={'X': 'Y'}).fillna('N').groupby(by="Foil?").agg({"Amount": "sum"})
-    stats_df["NbFoil"] = foil_stats.loc['Y', "Amount"]
-    stats_df["NbNotFoil"] = foil_stats.loc['N', "Amount"]
-    stats_df["FoilPercentage"] = (foil_stats.loc['Y'] / foil_stats.sum() * 100)[0]
+    foil_stats = (
+        stock_df.replace(to_replace={"X": "Y"})
+        .fillna("N")
+        .groupby(by="Foil?")
+        .agg({"Amount": "sum"})
+    )
+    stats_df["NbFoil"] = foil_stats.loc["Y", "Amount"]
+    stats_df["NbNotFoil"] = foil_stats.loc["N", "Amount"]
+    stats_df["FoilPercentage"] = (foil_stats.loc["Y"] / foil_stats.sum() * 100)[0]
 
     stats_df["NbCards"] = stock_df["Amount"].sum()
     stats_df["AvgCardPrice"] = stock_df["Price"].mean()

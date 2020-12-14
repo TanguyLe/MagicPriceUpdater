@@ -60,14 +60,16 @@ class OAuthAuthenticatedClient:
 
         return response
 
-    def put_api_call(
-            self, data: dict, url: furl
-    ) -> requests.Response:
+    def put_api_call(self, data: dict, url: furl) -> requests.Response:
         url_to_modify = url.copy()
         self.auth.realm = url_to_modify.remove(args=True, fragment=True)
         logger.info(f"Put request to {url}")
 
-        response = requests.put(url=url, data=dict_to_request_xml(my_dict=data, item_name="article"), auth=self.auth)
+        response = requests.put(
+            url=url,
+            data=dict_to_request_xml(my_dict=data, item_name="article"),
+            auth=self.auth,
+        )
         try:
             response.raise_for_status()
         except requests.HTTPError as error:

@@ -31,10 +31,12 @@ def prepare_stock_df(stock_df: pd.DataFrame) -> pd.DataFrame:
     stock_df["PriceApproval"] = 1
     stock_df["Comments"] = stock_df["Comments"].fillna("")
 
-    no_suggested_price_or_already_manual_mask = (
-        pd.isna(obj=stock_df["SuggestedPrice"]) & (~stock_df["Comments"].str.contains(MANUAL_PRICE_MARKER))
-    )
-    stock_df.loc[no_suggested_price_or_already_manual_mask, "Comments"] += MANUAL_PRICE_MARKER
+    no_suggested_price_or_already_manual_mask = pd.isna(
+        obj=stock_df["SuggestedPrice"]
+    ) & (~stock_df["Comments"].str.contains(MANUAL_PRICE_MARKER))
+    stock_df.loc[
+        no_suggested_price_or_already_manual_mask, "Comments"
+    ] += MANUAL_PRICE_MARKER
     stock_df.loc[
         stock_df["Comments"].str.contains(MANUAL_PRICE_MARKER), "PriceApproval"
     ] = 0
