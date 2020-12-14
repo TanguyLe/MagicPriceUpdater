@@ -8,7 +8,7 @@ MagicPriceUpdate: mpu
 Usage:
   mpu getstock <current-price-strat> <price-update-strat> [--market-extract-path=<mep>, 
     --strategies-options-path=<sep> --output-path=<op>, --force-download]
-  mpu update [--stock-file-path=<sfp>]
+  mpu update [--stock-file-path=<sfp> --yes-to-confirmation|-y]
   mpu stats [--output-path=<op>]
   mpu (-h | --help)
   mpu --version
@@ -21,6 +21,7 @@ Options:
   --strategies-options-path=<sep> Path to the strategy options. If not provided, no options are used [default: None].
   --output-path=<op> Output folder path [default: current-directory].
   --stock-file-path=<sfp> Input stock file path [default: current-directory/stock.csv].
+  --yes-to-confirmation|-y Prevents the user from being asked for confirmation.
 ```
 
 ## Behavior

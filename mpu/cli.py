@@ -89,8 +89,11 @@ def update(
         resolve_path=True,
         help="Path where to get the stock df. Default is the current directory's 'stock.csv'",
     ),
+    yes_to_confirmation: bool = typer.Option(
+        False, "--yes-to-confirmation", "-y", help="Prevents confirmation prompt from appearing."
+    )
 ) -> None:
-    main_update(stock_file_path=stock_file_path)
+    main_update(stock_file_path=stock_file_path, yes_to_confirmation=yes_to_confirmation)
 
 
 @app.command()

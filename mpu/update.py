@@ -7,7 +7,7 @@ from mpu.card_market_client import CardMarketClient
 from mpu.log_utils import set_log_conf
 
 
-def main(stock_file_path: Path):
+def main(stock_file_path: Path, yes_to_confirmation:bool):
     set_log_conf(log_path=Path.cwd())
     logger = logging.getLogger(__name__)
     logger.info("Update stats...")
@@ -30,18 +30,19 @@ def main(stock_file_path: Path):
 
     to_update_data = list(stock_to_update.T.to_dict().values())
 
-    user_input = ''
-    while user_input != "confirm":
-        print(
-            f"You are about to update {len(to_update_data)} price(s) for a "
-            f"total value difference of {previous_price - new_price:.2f}€. "
-            "Type \"confirm\" to continue or \"quit\" to leave."
-        )
-        user_input = input()
+    if not yes_to_confirmation:
+        user_input = ''
+        while user_input != "confirm":
+            print(
+                f"You are about to update {len(to_update_data)} price(s) for a "
+                f"total value difference of {previous_price - new_price:.2f}€. "
+                "Type \"confirm\" to continue or \"quit\" to leave."
+            )
+            user_input = input()
 
-        if user_input == "quit":
-            logger.info("Cancelling the update and leaving mpu")
-            return
+            if user_input == "quit":
+                logger.info("Cancelling the update and leaving mpu")
+                return
 
     logger.info("Updating the article prices...")
     client.update_articles_prices(articles_data=to_update_data)
