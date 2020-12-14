@@ -1,9 +1,14 @@
+import enum
 import json
 import sys
 from pathlib import Path
 from typing import Any, Dict, NamedTuple, Optional
 
 sys.path.append(str(Path(__file__).parent / "MPUStrategies"))
+
+from mpu_strategies.compute_current_price import CurrentPriceComputer
+from mpu_strategies.errors import SuitableExamplesShortage
+from mpu_strategies.price_update import PriceUpdater
 
 
 class StrategiesOptions(NamedTuple):
@@ -25,3 +30,22 @@ def get_strategies_options(
                 price_update=strategies_options["price_update"],
             )
     return StrategiesOptions(current_price={}, price_update={})
+
+
+CurrentPriceStrat = enum.Enum(
+    "CurrentPriceStrat",
+    {strat: strat for strat in CurrentPriceComputer.get_available_strategies()},
+)
+PriceUpdaterStrat = enum.Enum(
+    "PriceUpdaterStrat",
+    {strat: strat for strat in PriceUpdater.get_available_strategies()},
+)
+
+__all__ = [
+    "CurrentPriceStrat",
+    "PriceUpdaterStrat",
+    "PriceUpdater",
+    "CurrentPriceComputer",
+    "get_strategies_options",
+    "SuitableExamplesShortage",
+]

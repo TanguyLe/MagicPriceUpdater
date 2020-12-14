@@ -3,9 +3,6 @@ from pathlib import Path
 from typing import Optional
 
 import pandas as pd
-from mpu_strategies.compute_current_price import CurrentPriceComputer
-from mpu_strategies.errors import SuitableExamplesShortage
-from mpu_strategies.price_update import PriceUpdater
 from pandarallel import pandarallel
 
 from mpu.card_market_client import CardMarketClient
@@ -15,7 +12,11 @@ from mpu.market_extract import (
     set_market_extract_path,
 )
 from mpu.stock_handling import get_basic_stats, get_stock_file_path, prepare_stock_df
-from mpu.strategies_utils import get_strategies_options
+from mpu.strategies_utils import (
+    CurrentPriceComputer,
+    PriceUpdater,
+    get_strategies_options,
+)
 
 
 def get_product_price(

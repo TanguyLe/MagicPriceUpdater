@@ -1,5 +1,3 @@
-import enum
-import sys
 from pathlib import Path
 
 import typer
@@ -8,23 +6,10 @@ from mpu.getstock import main as main_getstock
 from mpu.log_utils import log_setup
 from mpu.stats import main as main_stats
 from mpu.stock_handling import get_stock_file_path
+from mpu.strategies_utils import CurrentPriceStrat, PriceUpdaterStrat
 from mpu.update import main as main_update
 
-# Extensions
-sys.path.append(str(Path(__file__).parent / "MPUStrategies"))
-from mpu_strategies.compute_current_price import CurrentPriceComputer
-from mpu_strategies.price_update import PriceUpdater
-
 app = typer.Typer()
-
-CurrentPriceStrat = enum.Enum(
-    "CurrentPriceStrat",
-    {strat: strat for strat in CurrentPriceComputer.get_available_strategies()},
-)
-PriceUpdaterStrat = enum.Enum(
-    "PriceUpdaterStrat",
-    {strat: strat for strat in PriceUpdater.get_available_strategies()},
-)
 
 
 @app.command()
