@@ -43,7 +43,8 @@ Options:
     7. The dataframe will be sorted by `"PriceApproval"` (increasing) and then relative
     difference between the `"Price"` (ref) and the `"SuggestedPrice"`.
     8. Save of the file as csv at `<op>/stock.csv`.
-2. Manual edition of the `"PriceApproval"` and `"SuggestedPrice"` columns of the stock file.
+2. Manual edition of the `"PriceApproval"`, `"Comments"` (to eventually 
+remove a `"<manualPrice>"` marker) and `"SuggestedPrice"` columns of the stock file.
 3. `update`: Command that performs the following actions :
     1. Read of the csv file `<sfp>`.
     2. Update on Card Market all the prices that have a 1 in `"PriceApproval"` using `"SuggestedPrice"`.
