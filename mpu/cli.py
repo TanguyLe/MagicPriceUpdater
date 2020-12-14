@@ -56,11 +56,11 @@ def getstock(
     force_download: bool = typer.Option(
         False, "--force-download", "-f", help="Force download the market extract."
     ),
-    parallel_execution: bool = typer.Option(
-        True,
-        "--parallel-execution",
-        "-p",
-        help="Parallelize the calls to the card market API.",
+    no_parallel_execution: bool = typer.Option(
+        False,
+        "--no-parallel-execution",
+        "-np",
+        help="Don't parallelize the calls to the card market API.",
     ),
 ):
     main_getstock(
@@ -70,7 +70,7 @@ def getstock(
         market_extract_path=market_extract_path,
         output_path=output_path,
         force_update=force_download,
-        parallel_execution=parallel_execution,
+        parallel_execution=not no_parallel_execution,
     )
 
 

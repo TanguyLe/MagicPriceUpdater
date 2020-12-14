@@ -16,6 +16,7 @@ from mpu.strategies_utils import (
     CurrentPriceComputer,
     PriceUpdater,
     get_strategies_options,
+    SuitableExamplesShortage
 )
 
 
