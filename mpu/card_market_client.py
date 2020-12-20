@@ -8,7 +8,7 @@ from authlib.integrations.requests_client import OAuth1Auth
 from dicttoxml import dicttoxml
 from furl import furl
 
-from mpu.stock_handling import convert_base64_gzipped_string_to_dataframe
+from mpu.stock_io import convert_base64_gzipped_string_to_dataframe
 
 logger = logging.getLogger(__name__)
 

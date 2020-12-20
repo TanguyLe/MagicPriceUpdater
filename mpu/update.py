@@ -12,10 +12,10 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
 
     stock_parent_path = stock_file_path.parent
     not_updated_file_path = (
-        stock_parent_path / f"notUpdatedStock-{pd.Timestamp('now').isoformat()}.csv"
+        stock_parent_path / f"notUpdatedStock-{pd.Timestamp('now').isoformat()}.xlsx"
     )
 
-    stock_df = pd.read_csv(filepath_or_buffer=stock_file_path)
+    stock_df = pd.read_excel(io=stock_file_path, engine="openpyxl")
 
     client = CardMarketClient()
     approved_articles_mask = stock_df["PriceApproval"] == 1
@@ -53,8 +53,8 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
     logger.info("Article prices updated.")
 
     logger.info("Saving the not updated articles...")
-    stock_df[~approved_articles_mask].to_csv(
-        path_or_buf=not_updated_file_path, index=False
+    stock_df[~approved_articles_mask].to_excel(
+        excel_writer=not_updated_file_path, index=False
     )
     logger.info(f"Not updated articles saved at {not_updated_file_path}.")
     logger.info("Update complete.")

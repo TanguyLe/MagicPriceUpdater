@@ -42,17 +42,17 @@ Options:
     if the comment contains the special marker `"<manualPrice>"`.
     7. The dataframe will be sorted by `"PriceApproval"` (increasing) and then relative
     difference between the `"Price"` (ref) and the `"SuggestedPrice"`.
-    8. Save of the file as csv at `<op>/stock.csv`.
+    8. Save of the file as a styled excel at `<op>/stock.xlsx`.
 2. Manual edition of the `"PriceApproval"`, `"Comments"` (to eventually 
 remove a `"<manualPrice>"` marker) and `"SuggestedPrice"` columns of the stock file.
 3. `update`: Command that performs the following actions :
-    1. Read of the csv file `<sfp>`.
+    1. Read of the excel file `<sfp>`.
     2. Update on Card Market all the prices that have a 1 in `"PriceApproval"` using `"SuggestedPrice"`.
     3. Update on Card Market of the comments of all the other products by adding a 
     marker `"<manualPrice>"` at the end if not already present.
     4. Save of a new file will only those not-updated cards at the same path than `<sfp>`
-    but named `notUpdatedStock-<datetime>.csv`.
-4. `stats`: Command unrelated to the workflow that generates a file at `<op>/stockStats-<datetime>.csv`,
+    but named `notUpdatedStock-<datetime>.xlsx`.
+4. `stats`: Command unrelated to the workflow that generates a file at `<op>/stockStats-<datetime>.xlsx`,
     With the following information:
     - % of foil/not foil
     - number of cards
