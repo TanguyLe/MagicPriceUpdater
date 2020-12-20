@@ -1,10 +1,12 @@
 import base64
 import gzip
 import io
+import string
 from pathlib import Path
 from typing import NamedTuple
 
 import pandas as pd
+from openpyxl.styles import PatternFill
 
 
 class BasicStats(NamedTuple):
@@ -13,9 +15,21 @@ class BasicStats(NamedTuple):
     relative_diff: float
 
 
+HIDDEN_COLS = ["idArticle", "idProduct"]
+COLORED_COLS = {
+    "Price": "FFF0F8FF",
+    "SuggestedPrice": "949494E8"
+}
+
+
+def get_excel_col_name(df: pd.DataFrame, col_name: str) -> str:
+    """Returns the letter to access the excel position of a column"""
+    return string.ascii_uppercase[list(df.columns).index(col_name)]
+
+
 def get_stock_file_path(folder_path: Path) -> Path:
     """Constructs the stock file path from a folder path"""
-    return folder_path / "stock.csv"
+    return folder_path / "stock.xlsx"
 
 
 def convert_base64_gzipped_string_to_dataframe(b64_zipped_string: str) -> pd.DataFrame:
@@ -24,6 +38,25 @@ def convert_base64_gzipped_string_to_dataframe(b64_zipped_string: str) -> pd.Dat
     csv_string = gzip.decompress(decoded_string)
 
     return pd.read_csv(io.BytesIO(csv_string), sep=";")
+
+
+def save_stock_df_as_odf_formatted_file(df: pd.DataFrame, file_path: Path) -> None:
+    writer = pd.ExcelWriter(path=str(file_path))
+    df.to_excel(excel_writer=writer, index=False)
+
+    worksheet = writer.sheets['Sheet1']
+
+    for col_name in ["idArticle", "idProduct"]:
+        excel_col_name = get_excel_col_name(df=df, col_name=col_name)
+        worksheet.column_dimensions[excel_col_name].hidden = True
+
+    for col_name, color in COLORED_COLS.items():
+        excel_col_name = get_excel_col_name(df=df, col_name=col_name)
+        fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
+
+        worksheet.column_dimensions[excel_col_name].fill = fill
+
+    writer.save()
 
 
 def prepare_stock_df(stock_df: pd.DataFrame) -> pd.DataFrame:
