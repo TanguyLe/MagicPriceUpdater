@@ -9,6 +9,9 @@ class BasicStats(NamedTuple):
     relative_diff: float
 
 
+MANUAL_PRICE_MARKER = "<M>"
+
+
 def prepare_stock_df(stock_df: pd.DataFrame) -> pd.DataFrame:
     """Prepares the columns 'PriceApproval', 'Comments', 'RelativePriceDiff' and sorts the stock_df """
     stock_df["PriceApproval"] = 1
@@ -59,6 +62,3 @@ def get_basic_stats(stock_df: pd.DataFrame) -> BasicStats:
         total_suggested_price=total_suggested_price,
         relative_diff=relative_diff,
     )
-
-
-MANUAL_PRICE_MARKER = "<manualPrice>"
