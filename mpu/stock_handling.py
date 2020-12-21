@@ -12,29 +12,32 @@ class BasicStats(NamedTuple):
 MANUAL_PRICE_MARKER = "<M>"
 
 
-def prepare_stock_df(stock_df: pd.DataFrame) -> pd.DataFrame:
+def prepare_stock_df(_stock_df: pd.DataFrame) -> pd.DataFrame:
     """Prepares the columns 'PriceApproval', 'Comments', 'RelativePriceDiff' and sorts the stock_df """
-    stock_df["PriceApproval"] = 1
-    stock_df["Comments"] = stock_df["Comments"].fillna("")
+    _stock_df = _stock_df.copy()
+    _stock_df["PriceApproval"] = 1
+    _stock_df["Comments"] = _stock_df["Comments"].fillna("")
 
     no_suggested_price_or_already_manual_mask = pd.isna(
-        obj=stock_df["SuggestedPrice"]
-    ) & (~stock_df["Comments"].str.contains(MANUAL_PRICE_MARKER))
+        obj=_stock_df["SuggestedPrice"]
+    ) & (~_stock_df["Comments"].str.contains(MANUAL_PRICE_MARKER))
 
-    stock_df.loc[no_suggested_price_or_already_manual_mask, "PriceApproval"] = 0
+    _stock_df.loc[no_suggested_price_or_already_manual_mask, "PriceApproval"] = 0
 
-    stock_df["RelativePriceDiff"] = (
-        stock_df["SuggestedPrice"] - stock_df["Price"]
-    ) / stock_df["Price"] * 100
+    _stock_df["RelativePriceDiff"] = (
+                                             _stock_df["SuggestedPrice"] - _stock_df["Price"]
+    ) / _stock_df["Price"] * 100
 
-    stock_df["AbsRelativePriceDiff"] = stock_df["RelativePriceDiff"].abs()
-    stock_df = stock_df.sort_values(
+    _stock_df["AbsRelativePriceDiff"] = _stock_df["RelativePriceDiff"].abs()
+    _stock_df = _stock_df.sort_values(
         by=["PriceApproval", "AbsRelativePriceDiff"], ascending=[True, False]
     ).drop("AbsRelativePriceDiff", axis="columns")
 
-    stock_df["RelativePriceDiff"] = stock_df["RelativePriceDiff"].round(2)
+    _stock_df["RelativePriceDiff"] = _stock_df["RelativePriceDiff"].round(2)
 
-    return stock_df
+    _stock_df.insert(loc=list(_stock_df.columns).index("SuggestedPrice"), column="ManualPrice", value='')
+
+    return _stock_df
 
 
 def get_basic_stats(stock_df: pd.DataFrame) -> BasicStats:

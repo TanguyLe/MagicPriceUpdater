@@ -125,7 +125,7 @@ def main(
         logger.info("Prices computing ended.")
 
     logger.info("Computing the new columns...")
-    stock_df = prepare_stock_df(stock_df=stock_df)
+    stock_df = prepare_stock_df(_stock_df=stock_df)
     logger.info("Using the price_update strategy...")
     stock_df = price_updater.get_updated_df(stock_df=stock_df)
     logger.info("New columns computing ended.")
