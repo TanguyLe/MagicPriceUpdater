@@ -27,12 +27,17 @@ def prepare_stock_df(stock_df: pd.DataFrame) -> pd.DataFrame:
     ] = 0
 
     stock_df["RelativePriceDiff"] = (
-        stock_df["Price"] - stock_df["SuggestedPrice"]
-    ) / stock_df["SuggestedPrice"]
+        stock_df["SuggestedPrice"] - stock_df["Price"]
+    ) / stock_df["Price"] * 100
 
-    return stock_df.sort_values(
-        by=["PriceApproval", "RelativePriceDiff"], ascending=[True, False]
-    )
+    stock_df["AbsRelativePriceDiff"] = stock_df["RelativePriceDiff"].abs()
+    stock_df = stock_df.sort_values(
+        by=["PriceApproval", "AbsRelativePriceDiff"], ascending=[True, False]
+    ).drop("AbsRelativePriceDiff", axis="columns")
+
+    stock_df["RelativePriceDiff"] = stock_df["RelativePriceDiff"].round(2)
+
+    return stock_df
 
 
 def get_basic_stats(stock_df: pd.DataFrame) -> BasicStats:
