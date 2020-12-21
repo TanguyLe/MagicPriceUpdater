@@ -109,7 +109,7 @@ def main(
     # Put the product prices in the df
     try:
         if parallel_execution:
-            rows = [row for _, row in stock_df.iterrows()]
+            rows = [row for _, row in stock_df.fillna('').iterrows()]
             product_price = list(executor.map(get_product_price_with_args, rows, chunksize=10))
             executor.shutdown()
         else:
