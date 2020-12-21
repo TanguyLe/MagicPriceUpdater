@@ -4,24 +4,25 @@ import io
 from pathlib import Path
 
 import pandas as pd
-from openpyxl.styles import PatternFill
-from openpyxl.utils import get_column_letter
 
-HIDDEN_COLS = ["idArticle", "Local Name", "Exp. Name", "Signed?", "Playset?", "Altered?", "idCurrency", "Currency Code"]
-COLORED_COLS = {
-    "Price": "949494E8",
-    "SuggestedPrice": "949494E8",
-    "PriceApproval": "FFF0F8FF"
+from mpu.pyopenxl_utils import format_and_save_df
+
+
+COLUMNS_FORMAT = {
+    "idArticle": {"hidden": True},
+    "Local Name": {"hidden": True},
+    "English Name": {"width": 7.5},
+    "Exp. Name": {"hidden": True},
+    "Signed?": {"hidden": True},
+    "Playset?": {"hidden": True},
+    "Altered?": {"hidden": True},
+    "idCurrency": {"hidden": True},
+    "Currency Code": {"hidden": True},
+    "Price": {"color": "949494E8"},
+    "SuggestedPrice": {"color": "949494E8"},
+    "PriceApproval": {"color": "FFF0F8FF"}
+
 }
-
-
-def get_width_value(centimeter_value: float):
-    return centimeter_value / 0.1852083331
-
-
-def get_excel_col_name(df: pd.DataFrame, col_name: str) -> str:
-    """Returns the letter to access the excel position of a column"""
-    return get_column_letter(list(df.columns).index(col_name) + 1)
 
 
 def get_stock_file_path(folder_path: Path) -> Path:
@@ -41,19 +42,4 @@ def save_stock_df_as_odf_formatted_file(df: pd.DataFrame, file_path: Path) -> No
     writer = pd.ExcelWriter(path=str(file_path))
     df.to_excel(excel_writer=writer, index=False)
 
-    worksheet = writer.sheets['Sheet1']
-
-    for col_name in HIDDEN_COLS:
-        excel_col_name = get_excel_col_name(df=df, col_name=col_name)
-        worksheet.column_dimensions[excel_col_name].hidden = True
-
-    for col_name, color in COLORED_COLS.items():
-        excel_col_name = get_excel_col_name(df=df, col_name=col_name)
-        fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
-
-        worksheet.column_dimensions[excel_col_name].fill = fill
-
-    excel_col_name = get_excel_col_name(df=df, col_name="English Name")
-    worksheet.column_dimensions[excel_col_name].width = 50
-
-    writer.save()
+    format_and_save_df(df=df, writer=writer, format_config=COLUMNS_FORMAT)

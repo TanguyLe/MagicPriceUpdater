@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
-from mpu.stock_io import get_width_value, get_excel_col_name
+from mpu.pyopenxl_utils import format_and_save_df
 
 
 def get_stats_file_path(folder_path: Path) -> Path:
@@ -14,18 +14,18 @@ def get_stats_file_path(folder_path: Path) -> Path:
 
 INDEX_NAME = "datetime"
 
-COLUMNS_WIDTH_CENTIMETERS = {
-    INDEX_NAME: 4,
-    "NbCards": 2,
-    "NbFoil": 2.45,
-    "NbNotFoil": 2.80,
-    "FoilPercentage": 3.75,
-    "NbCardsSup5": 3.25,
-    "NbCardsInf0.30": 3.75,
-    "AvgCardPrice": 4,
-    "StockTotalValue": 4
+COLUMNS_FORMAT = {
+    INDEX_NAME: {"width": 5},
+    "NbCards": {"width": 2.2},
+    "NbFoil": {"width": 2.65},
+    "NbNotFoil": {"width": 3},
+    "FoilPercentage": {"width": 4},
+    "NbCardsSup5": {"width": 3.5},
+    "NbCardsInf0.30": {"width": 4},
+    "AvgCardPrice": {"width": 4.25},
+    "StockTotalValue": {"width": 4.25},
 }
-STATS_COLUMNS = [col_name for col_name in list(COLUMNS_WIDTH_CENTIMETERS.keys()) if col_name != INDEX_NAME]
+STATS_COLUMNS = [col_name for col_name in list(COLUMNS_FORMAT.keys()) if col_name != INDEX_NAME]
 
 
 def main(stats_file_path: Path):
@@ -78,17 +78,10 @@ def main(stats_file_path: Path):
     logger.info("Stats computing ended.")
 
     logger.info("Saving the stats...")
+
     writer = pd.ExcelWriter(path=str(stats_file_path))
     final_stats_df.to_excel(excel_writer=writer)
-    final_stats_df = final_stats_df.reset_index()
-
-    worksheet = writer.sheets['Sheet1']
-
-    for col_name, width in COLUMNS_WIDTH_CENTIMETERS.items():
-        excel_col_name = get_excel_col_name(df=final_stats_df, col_name=col_name)
-        worksheet.column_dimensions[excel_col_name].width = get_width_value(centimeter_value=width)
-
-    writer.save()
+    format_and_save_df(df=final_stats_df.reset_index(), writer=writer, format_config=COLUMNS_FORMAT)
 
     logger.info(f"Stats saved at {stats_file_path}.")
 
