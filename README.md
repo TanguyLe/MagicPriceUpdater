@@ -18,8 +18,4 @@ with the env variables `CLIENT_KEY`,
 [Card Market API](https://api.cardmarket.com/ws/documentation/API_Main_Page).
 Help commands are available using `-h`.
 
-# Next steps
-- improve the strategies (on a private repo)
-- split update logic into multiple requests
-- ask for more confirmation ?
-- Excel support ?
+Detailed behavior is the [doc](./doc/behavior_description.md).

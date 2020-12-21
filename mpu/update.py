@@ -5,6 +5,7 @@ import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
 from mpu.log_utils import DATE_FMT
+from mpu.stock_handling import MANUAL_PRICE_MARKER
 
 
 def main(stock_file_path: Path, yes_to_confirmation: bool):
@@ -19,8 +20,19 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
     stock_df = pd.read_excel(io=stock_file_path, engine="openpyxl")
 
     client = CardMarketClient()
-    approved_articles_mask = stock_df["PriceApproval"] == 1
 
+    # Handling the 'manual prices'
+    # If the price is manual, it overrides the suggested price and goes directly approved
+    manual_prices_mask = stock_df["ManualPrice"] != ''
+    stock_df.loc[manual_prices_mask, "SuggestedPrice"] = stock_df.loc[manual_prices_mask, "ManualPrice"]
+    stock_df.loc[manual_prices_mask, "PriceApproval"] = 1
+    # The comment is updated if it wasn't already manual
+    manual_price_without_marker = manual_prices_mask & (~stock_df["Comments"].str.contains(MANUAL_PRICE_MARKER))
+    stock_df.loc[manual_price_without_marker, "Comments"] = (
+            stock_df.loc[manual_price_without_marker, "Comments"] + MANUAL_PRICE_MARKER
+    )
+
+    approved_articles_mask = stock_df["PriceApproval"] == 1
     stock_to_update = stock_df.loc[approved_articles_mask]
 
     previous_price = (stock_to_update["Price"] * stock_to_update["Amount"]).sum()

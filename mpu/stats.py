@@ -7,11 +7,6 @@ from mpu.card_market_client import CardMarketClient
 from mpu.pyopenxl_utils import format_and_save_df
 
 
-def get_stats_file_path(folder_path: Path) -> Path:
-    """Constructs the stats file path from a folder path"""
-    return folder_path / "stockStats.xlsx"
-
-
 INDEX_NAME = "datetime"
 
 COLUMNS_FORMAT = {
@@ -26,6 +21,11 @@ COLUMNS_FORMAT = {
     "StockTotalValue": {"width": 4.25},
 }
 STATS_COLUMNS = [col_name for col_name in list(COLUMNS_FORMAT.keys()) if col_name != INDEX_NAME]
+
+
+def get_stats_file_path(folder_path: Path) -> Path:
+    """Constructs the stats file path from a folder path"""
+    return folder_path / "stockStats.xlsx"
 
 
 def main(stats_file_path: Path):

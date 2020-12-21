@@ -18,15 +18,13 @@ def prepare_stock_df(_stock_df: pd.DataFrame) -> pd.DataFrame:
     _stock_df["PriceApproval"] = 1
     _stock_df["Comments"] = _stock_df["Comments"].fillna("")
 
-    no_suggested_price_or_already_manual_mask = pd.isna(
-        obj=_stock_df["SuggestedPrice"]
-    ) & (~_stock_df["Comments"].str.contains(MANUAL_PRICE_MARKER))
+    no_suggested_price_or_already_manual_mask = (
+        pd.isna(obj=_stock_df["SuggestedPrice"]) & (~_stock_df["Comments"].str.contains(MANUAL_PRICE_MARKER))
+    )
 
     _stock_df.loc[no_suggested_price_or_already_manual_mask, "PriceApproval"] = 0
 
-    _stock_df["RelativePriceDiff"] = (
-                                             _stock_df["SuggestedPrice"] - _stock_df["Price"]
-    ) / _stock_df["Price"] * 100
+    _stock_df["RelativePriceDiff"] = (_stock_df["SuggestedPrice"] - _stock_df["Price"]) / _stock_df["Price"] * 100
 
     _stock_df["AbsRelativePriceDiff"] = _stock_df["RelativePriceDiff"].abs()
     _stock_df = _stock_df.sort_values(
