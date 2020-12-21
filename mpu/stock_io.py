@@ -15,6 +15,10 @@ COLORED_COLS = {
 }
 
 
+def get_width_value(centimeter_value: float):
+    return centimeter_value / 0.1852083331
+
+
 def get_excel_col_name(df: pd.DataFrame, col_name: str) -> str:
     """Returns the letter to access the excel position of a column"""
     return get_column_letter(list(df.columns).index(col_name) + 1)

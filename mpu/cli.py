@@ -4,7 +4,7 @@ import typer
 
 from mpu.getstock import main as main_getstock
 from mpu.log_utils import log_setup
-from mpu.stats import main as main_stats
+from mpu.stats import main as main_stats, get_stats_file_path
 from mpu.stock_io import get_stock_file_path
 from mpu.strategies_utils import CurrentPriceStrat, PriceUpdaterStrat
 from mpu.update import main as main_update
@@ -104,20 +104,20 @@ def update(
 @app.command()
 @log_setup
 def stats(
-    output_path: Path = typer.Option(
-        Path.cwd(),
-        "--output-path",
-        "-op",
-        exists=True,
-        file_okay=False,
+    stats_file_path: Path = typer.Option(
+        get_stats_file_path(folder_path=Path.cwd()),
+        "--stats-file-path",
+        "-sfp",
+        exists=False,
+        file_okay=True,
         dir_okay=True,
         writable=True,
         readable=True,
         resolve_path=True,
-        help="Path where to save the output. Default is the current directory",
+        help="Path where to get the stats df. Default is the current directory's 'stockStats.csv'",
     ),
 ) -> None:
-    main_stats(output_path=output_path)
+    main_stats(stats_file_path=stats_file_path)
 
 
 if __name__ == "__main__":
