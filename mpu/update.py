@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
+from mpu.log_utils import DATE_FMT
 
 
 def main(stock_file_path: Path, yes_to_confirmation: bool):
@@ -12,7 +13,7 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
 
     stock_parent_path = stock_file_path.parent
     not_updated_file_path = (
-        stock_parent_path / f"notUpdatedStock-{pd.Timestamp('now').isoformat()}.xlsx"
+        stock_parent_path / f"notUpdatedStock-{pd.Timestamp('now').strftime(DATE_FMT)}.xlsx"
     )
 
     stock_df = pd.read_excel(io=stock_file_path, engine="openpyxl")

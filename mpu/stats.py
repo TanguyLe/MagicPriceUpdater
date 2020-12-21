@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
+from mpu.log_utils import DATE_FMT
 
 
 def main(output_path: Path):
@@ -11,7 +12,7 @@ def main(output_path: Path):
     logger.info("Starting stats...")
 
     stats_output_path = (
-        output_path / f"stockStats-{pd.Timestamp('now').isoformat()}.xlsx"
+        output_path / f"stockStats-{pd.Timestamp('now').strftime(DATE_FMT)}.xlsx"
     )
 
     client = CardMarketClient()
@@ -44,7 +45,7 @@ def main(output_path: Path):
     logger.info("Stats computing ended.")
 
     logger.info("Saving the stats...")
-    stats_df.to_excel(excel_writer=stats_output_path)
+    stats_df.to_excel(excel_writer=str(stats_output_path))
     logger.info(f"Stats saved at {stats_output_path}.")
 
     logger.info("stats complete.")

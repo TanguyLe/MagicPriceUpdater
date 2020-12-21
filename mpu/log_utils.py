@@ -7,6 +7,9 @@ from pathlib import Path
 from typing import Callable
 
 
+DATE_FMT = "%Y-%m-%dT%H-%M-%S"
+
+
 def set_log_conf(log_path: Path) -> None:
     config.dictConfig(
         config={
@@ -30,7 +33,7 @@ def set_log_conf(log_path: Path) -> None:
             "formatters": {
                 "default": {
                     "format": "%(asctime)s %(name)-30s %(levelname)-8s %(message)s",
-                    "datefmt": "%Y-%m-%d %H:%M:%S",
+                    "datefmt": DATE_FMT,
                 }
             },
             "loggers": {
