@@ -105,15 +105,16 @@ def main(
     )
 
     stock_df = client.get_stock_df()
+    stock_df_for_strategies = stock_df.fillna('')
     logger.info("Computing the new prices...")
     # Put the product prices in the df
     try:
         if parallel_execution:
-            rows = [row for _, row in stock_df.fillna('').iterrows()]
+            rows = [row for _, row in stock_df_for_strategies.iterrows()]
             product_price = list(executor.map(get_product_price_with_args, rows, chunksize=10))
             executor.shutdown()
         else:
-            product_price = stock_df.apply(get_product_price_with_args)
+            product_price = stock_df_for_strategies.apply(get_product_price_with_args, axis="columns")
     except Exception as error:
         logger.error("An error happened while computing prices.")
         logger.error(error)
