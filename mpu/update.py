@@ -10,14 +10,17 @@ from mpu.stock_handling import MANUAL_PRICE_MARKER
 
 def main(stock_file_path: Path, yes_to_confirmation: bool):
     logger = logging.getLogger(__name__)
-    logger.info("Update stats...")
+    logger.info("Update starts...")
 
     stock_parent_path = stock_file_path.parent
     not_updated_file_path = (
         stock_parent_path / f"notUpdatedStock-{pd.Timestamp('now').strftime(DATE_FMT)}.xlsx"
     )
 
+    logger.info("Loading stock excel...")
     stock_df = pd.read_excel(io=stock_file_path, engine="openpyxl")
+    stock_df = stock_df.fillna('')
+    logger.info("Stock loaded.")
 
     client = CardMarketClient()
 
