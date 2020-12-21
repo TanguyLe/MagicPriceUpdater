@@ -1,16 +1,13 @@
 import logging
+from functools import partial
 from pathlib import Path
 from typing import Optional
+from concurrent.futures import ProcessPoolExecutor
 
 import pandas as pd
-from pandarallel import pandarallel
 
 from mpu.card_market_client import CardMarketClient
-from mpu.log_utils import redirect_stdout_and_err_to_logger
-from mpu.market_extract import (
-    get_single_product_market_extract,
-    set_market_extract_path,
-)
+from mpu.market_extract import get_single_product_market_extract, get_market_extract_path
 from mpu.stock_handling import get_basic_stats, prepare_stock_df
 from mpu.stock_io import get_stock_file_path, save_stock_df_as_odf_formatted_file
 from mpu.strategies_utils import (
@@ -23,6 +20,7 @@ from mpu.strategies_utils import (
 
 def get_product_price(
     row: pd.Series,
+    market_extract_path: Path,
     current_price_computer: CurrentPriceComputer,
     card_market_client: CardMarketClient,
     force_update: bool,
@@ -31,12 +29,16 @@ def get_product_price(
 
     stock_info: dict = row.to_dict()
     product_id = stock_info["idProduct"]
+    _get_single_product_market_extract = partial(
+        get_single_product_market_extract,
+        product_id=product_id,
+        market_extract_path=market_extract_path,
+        card_market_client=card_market_client,
+        force_update=force_update
+    )
+
     try:
-        market_extract = get_single_product_market_extract(
-            product_id=product_id,
-            card_market_client=card_market_client,
-            force_update=force_update,
-        )
+        market_extract = _get_single_product_market_extract()
     except Exception as error:
         logger.error(
             f"Error when trying to extract data for product {product_id}: {error.__repr__()}"
@@ -49,12 +51,7 @@ def get_product_price(
         )
     except SuitableExamplesShortage:
         # We try with a larger request in case of a lack of suitable examples
-        market_extract = get_single_product_market_extract(
-            product_id=product_id,
-            card_market_client=card_market_client,
-            force_update=force_update,
-            max_results=500,
-        )
+        market_extract = _get_single_product_market_extract(max_results=500)
         try:
             return current_price_computer.get_current_price_from_market_extract(
                 stock_info=stock_info, market_extract=market_extract
@@ -76,19 +73,19 @@ def main(
     logger.info("Starting getstock...")
 
     if parallel_execution:
-        with redirect_stdout_and_err_to_logger(logger=logger):
-            pandarallel.initialize(progress_bar=False)
+        executor = ProcessPoolExecutor()
+        logger.info(f"Parallel execution on {executor._max_workers} workers.")
+
+    market_extract_path = get_market_extract_path(market_extract_parent_path=market_extract_path)
+    logger.info(f"Market extract at {market_extract_path}.")
 
     stock_output_path = get_stock_file_path(folder_path=output_path)
-    strategies_options = get_strategies_options(
-        strategies_options_path=strategies_options_path
-    )
-    set_market_extract_path(market_extract_parent_path=market_extract_path)
+    strategies_options = get_strategies_options(strategies_options_path=strategies_options_path)
 
     logger.info(
         f"Using the following strategies: current_price={current_price_strategy} / price_update={price_update_strategy}"
     )
-    logger.info(f"With the following options: {strategies_options}")
+    logger.info(f"With the following input options: {strategies_options}")
     logger.info(f"Setting up the client and the strategies...")
     client = CardMarketClient()
     current_price_computer = CurrentPriceComputer(
@@ -99,25 +96,24 @@ def main(
     )
     logger.info(f"Client and strategies initialized.")
 
-    get_product_price_kwargs = {
-        "axis": "columns",
-        "current_price_computer": current_price_computer,
-        "card_market_client": client,
-        "force_update": force_update,
-    }
+    get_product_price_with_args = partial(
+        get_product_price,
+        current_price_computer=current_price_computer,
+        market_extract_path=market_extract_path,
+        card_market_client=client,
+        force_update=force_update
+    )
 
     stock_df = client.get_stock_df()
     logger.info("Computing the new prices...")
     # Put the product prices in the df
     try:
         if parallel_execution:
-            product_price = stock_df.parallel_apply(
-                get_product_price, **get_product_price_kwargs
-            )
+            rows = [row for _, row in stock_df.iterrows()]
+            product_price = list(executor.map(get_product_price_with_args, rows, chunksize=10))
+            executor.shutdown()
         else:
-            product_price = stock_df.apply(
-                get_product_price, **get_product_price_kwargs
-            )
+            product_price = stock_df.apply(get_product_price_with_args)
     except Exception as error:
         logger.error("An error happened while computing prices.")
         logger.error(error)
