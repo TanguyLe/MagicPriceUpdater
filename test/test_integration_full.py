@@ -18,6 +18,14 @@ DF_STOCK = pd.DataFrame(
 DF_STOCK["Price"] = pd.to_numeric(DF_STOCK["Price"])
 DF_STOCK["Amount"] = pd.to_numeric(DF_STOCK["Amount"])
 
+# Doing more or less the same things as the algo itself, with the current mocks
+DF_STOCK_OUTPUT = DF_STOCK.copy()
+DF_STOCK_OUTPUT["ManualPrice"] = float("nan")
+DF_STOCK_OUTPUT["SuggestedPrice"] = 10
+DF_STOCK_OUTPUT["PriceApproval"] = 1
+DF_STOCK_OUTPUT = DF_STOCK_OUTPUT.reindex([1, 2, 0])
+DF_STOCK_OUTPUT["RelativePriceDiff"] = [185.71, 81.82, -9.09]
+
 
 runner = CliRunner()
 
@@ -55,6 +63,10 @@ def test_integration_gestock(tmp_path, mocker):
         result = runner.invoke(app, ["getstock", "market_and_lower", "initial", "--no-parallel-execution"])
 
     assert result.exit_code == 0
-    # TODO Add the checks that the final thing was written
+    assert (new_folder / "market_extract").exists()
+    assert (new_folder / "market_extract" / "16416.json").exists()
+    assert (new_folder / "market_extract" / "16194.json").exists()
+    assert (new_folder / "market_extract" / "16196.json").exists()
+    DF_STOCK_OUTPUT.to_excel("test.xlsx", index=False)
+    pd.testing.assert_frame_equal(pd.read_excel(new_folder / "stock.xlsx", engine="openpyxl"), pd.read_excel("test.xlsx", engine="openpyxl"))
     # TODO Run black & isort
-
