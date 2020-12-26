@@ -7,7 +7,6 @@ import pandas as pd
 
 from mpu.pyopenxl_utils import format_and_save_df
 
-
 COLUMNS_FORMAT = {
     "idArticle": {"hidden": True},
     "Local Name": {"hidden": True},
@@ -20,8 +19,7 @@ COLUMNS_FORMAT = {
     "Currency Code": {"hidden": True},
     "Price": {"color": "949494E8"},
     "SuggestedPrice": {"color": "949494E8"},
-    "PriceApproval": {"color": "FFF0F8FF"}
-
+    "PriceApproval": {"color": "FFF0F8FF"},
 }
 
 

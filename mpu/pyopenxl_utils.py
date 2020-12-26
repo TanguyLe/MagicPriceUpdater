@@ -17,7 +17,9 @@ def change_visibility(worksheet, excel_col_name: str, property_value):
 
 
 def color_fill(worksheet, excel_col_name: str, property_value):
-    fill = PatternFill(start_color=property_value, end_color=property_value, fill_type='solid')
+    fill = PatternFill(
+        start_color=property_value, end_color=property_value, fill_type="solid"
+    )
 
     worksheet.column_dimensions[excel_col_name].fill = fill
 
@@ -31,17 +33,19 @@ def change_width(worksheet, excel_col_name: str, property_value):
 PROPERTIES_MAP = {
     "hidden": change_visibility,
     "color": color_fill,
-    "width": change_width
+    "width": change_width,
 }
 
 
 def format_and_save_df(df: pd.DataFrame, writer: pd.ExcelWriter, format_config: dict):
-    worksheet = writer.sheets['Sheet1']
+    worksheet = writer.sheets["Sheet1"]
 
     for col_name, format_properties in format_config.items():
         excel_col_name = get_excel_col_name(df=df, col_name=col_name)
         for property_name, property_value in format_properties.items():
             PROPERTIES_MAP[property_name](
-                worksheet=worksheet, excel_col_name=excel_col_name, property_value=property_value
+                worksheet=worksheet,
+                excel_col_name=excel_col_name,
+                property_value=property_value,
             )
     writer.save()

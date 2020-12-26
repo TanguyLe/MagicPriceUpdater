@@ -6,7 +6,6 @@ import pandas as pd
 from mpu.card_market_client import CardMarketClient
 from mpu.pyopenxl_utils import format_and_save_df
 
-
 INDEX_NAME = "datetime"
 
 COLUMNS_FORMAT = {
@@ -20,7 +19,9 @@ COLUMNS_FORMAT = {
     "AvgCardPrice": {"width": 4.25},
     "StockTotalValue": {"width": 4.25},
 }
-STATS_COLUMNS = [col_name for col_name in list(COLUMNS_FORMAT.keys()) if col_name != INDEX_NAME]
+STATS_COLUMNS = [
+    col_name for col_name in list(COLUMNS_FORMAT.keys()) if col_name != INDEX_NAME
+]
 
 
 def get_stats_file_path(folder_path: Path) -> Path:
@@ -45,7 +46,9 @@ def main(stats_file_path: Path):
         former_stats_df = pd.DataFrame(columns=STATS_COLUMNS, index=pd.to_datetime([]))
         former_stats_df.index.name = INDEX_NAME
     else:
-        if list(former_stats_df.columns) != STATS_COLUMNS or not isinstance(former_stats_df.index, pd.DatetimeIndex):
+        if list(former_stats_df.columns) != STATS_COLUMNS or not isinstance(
+            former_stats_df.index, pd.DatetimeIndex
+        ):
             msg = f"The current stats df at {stats_file_path} is wrongly formatted, move it or delete it."
             logger.error(msg)
             raise RuntimeError(msg)
@@ -54,7 +57,7 @@ def main(stats_file_path: Path):
 
     logger.info("Computing the stats...")
 
-    stats_df = pd.DataFrame(index=pd.to_datetime([pd.Timestamp('now')]))
+    stats_df = pd.DataFrame(index=pd.to_datetime([pd.Timestamp("now")]))
     stats_df.index.name = INDEX_NAME
 
     foil_stats = (
@@ -81,7 +84,9 @@ def main(stats_file_path: Path):
 
     writer = pd.ExcelWriter(path=str(stats_file_path))
     final_stats_df.to_excel(excel_writer=writer)
-    format_and_save_df(df=final_stats_df.reset_index(), writer=writer, format_config=COLUMNS_FORMAT)
+    format_and_save_df(
+        df=final_stats_df.reset_index(), writer=writer, format_config=COLUMNS_FORMAT
+    )
 
     logger.info(f"Stats saved at {stats_file_path}.")
 

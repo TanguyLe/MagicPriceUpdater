@@ -20,7 +20,10 @@ def get_market_extract_path(market_extract_parent_path: Path):
 
 
 def get_market_extract_from_card_market(
-    product_id: int, card_market_client: CardMarketClient, market_extract_path: Path, max_results: int = 100
+    product_id: int,
+    card_market_client: CardMarketClient,
+    market_extract_path: Path,
+    max_results: int = 100,
 ):
     product_market_extract = {
         "articles": card_market_client.get_product_articles(

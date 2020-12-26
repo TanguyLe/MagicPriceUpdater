@@ -6,7 +6,6 @@ from logging import config
 from pathlib import Path
 from typing import Callable
 
-
 DATE_FMT = "%Y-%m-%dT%H-%M-%S"
 
 

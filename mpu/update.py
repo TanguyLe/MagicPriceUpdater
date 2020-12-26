@@ -14,25 +14,30 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
 
     stock_parent_path = stock_file_path.parent
     not_updated_file_path = (
-        stock_parent_path / f"notUpdatedStock-{pd.Timestamp('now').strftime(DATE_FMT)}.xlsx"
+        stock_parent_path
+        / f"notUpdatedStock-{pd.Timestamp('now').strftime(DATE_FMT)}.xlsx"
     )
 
     logger.info("Loading stock excel...")
     stock_df = pd.read_excel(io=stock_file_path, engine="openpyxl")
-    stock_df = stock_df.fillna('')
+    stock_df = stock_df.fillna("")
     logger.info("Stock loaded.")
 
     client = CardMarketClient()
 
     # Handling the 'manual prices'
     # If the price is manual, it overrides the suggested price and goes directly approved
-    manual_prices_mask = stock_df["ManualPrice"] != ''
-    stock_df.loc[manual_prices_mask, "SuggestedPrice"] = stock_df.loc[manual_prices_mask, "ManualPrice"]
+    manual_prices_mask = stock_df["ManualPrice"] != ""
+    stock_df.loc[manual_prices_mask, "SuggestedPrice"] = stock_df.loc[
+        manual_prices_mask, "ManualPrice"
+    ]
     stock_df.loc[manual_prices_mask, "PriceApproval"] = 1
     # The comment is updated if it wasn't already manual
-    manual_price_without_marker = manual_prices_mask & (~stock_df["Comments"].str.contains(MANUAL_PRICE_MARKER))
+    manual_price_without_marker = manual_prices_mask & (
+        ~stock_df["Comments"].str.contains(MANUAL_PRICE_MARKER)
+    )
     stock_df.loc[manual_price_without_marker, "Comments"] = (
-            stock_df.loc[manual_price_without_marker, "Comments"] + MANUAL_PRICE_MARKER
+        stock_df.loc[manual_price_without_marker, "Comments"] + MANUAL_PRICE_MARKER
     )
 
     approved_articles_mask = stock_df["PriceApproval"] == 1

@@ -1,20 +1,23 @@
 import logging
+from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
 from typing import Optional
-from concurrent.futures import ProcessPoolExecutor
 
 import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
-from mpu.market_extract import get_single_product_market_extract, get_market_extract_path
+from mpu.market_extract import (
+    get_market_extract_path,
+    get_single_product_market_extract,
+)
 from mpu.stock_handling import get_basic_stats, prepare_stock_df
 from mpu.stock_io import get_stock_file_path, save_stock_df_as_odf_formatted_file
 from mpu.strategies_utils import (
     CurrentPriceComputer,
     PriceUpdater,
+    SuitableExamplesShortage,
     get_strategies_options,
-    SuitableExamplesShortage
 )
 
 
@@ -34,7 +37,7 @@ def get_product_price(
         product_id=product_id,
         market_extract_path=market_extract_path,
         card_market_client=card_market_client,
-        force_update=force_update
+        force_update=force_update,
     )
 
     try:
@@ -76,11 +79,15 @@ def main(
         executor = ProcessPoolExecutor()
         logger.info(f"Parallel execution on {executor._max_workers} workers.")
 
-    market_extract_path = get_market_extract_path(market_extract_parent_path=market_extract_path)
+    market_extract_path = get_market_extract_path(
+        market_extract_parent_path=market_extract_path
+    )
     logger.info(f"Market extract at {market_extract_path}.")
 
     stock_output_path = get_stock_file_path(folder_path=output_path)
-    strategies_options = get_strategies_options(strategies_options_path=strategies_options_path)
+    strategies_options = get_strategies_options(
+        strategies_options_path=strategies_options_path
+    )
 
     logger.info(
         f"Using the following strategies: current_price={current_price_strategy} / price_update={price_update_strategy}"
@@ -101,20 +108,24 @@ def main(
         current_price_computer=current_price_computer,
         market_extract_path=market_extract_path,
         card_market_client=client,
-        force_update=force_update
+        force_update=force_update,
     )
 
     stock_df = client.get_stock_df()
-    stock_df_for_strategies = stock_df.fillna('')
+    stock_df_for_strategies = stock_df.fillna("")
     logger.info("Computing the new prices...")
     # Put the product prices in the df
     try:
         if parallel_execution:
             rows = [row for _, row in stock_df_for_strategies.iterrows()]
-            product_price = list(executor.map(get_product_price_with_args, rows, chunksize=10))
+            product_price = list(
+                executor.map(get_product_price_with_args, rows, chunksize=10)
+            )
             executor.shutdown()
         else:
-            product_price = stock_df_for_strategies.apply(get_product_price_with_args, axis="columns")
+            product_price = stock_df_for_strategies.apply(
+                get_product_price_with_args, axis="columns"
+            )
     except Exception as error:
         logger.error("An error happened while computing prices.")
         logger.error(error)

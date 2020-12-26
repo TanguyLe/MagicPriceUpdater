@@ -4,7 +4,8 @@ import typer
 
 from mpu.getstock import main as main_getstock
 from mpu.log_utils import log_setup
-from mpu.stats import main as main_stats, get_stats_file_path
+from mpu.stats import get_stats_file_path
+from mpu.stats import main as main_stats
 from mpu.stock_io import get_stock_file_path
 from mpu.strategies_utils import CurrentPriceStrat, PriceUpdaterStrat
 from mpu.update import main as main_update
