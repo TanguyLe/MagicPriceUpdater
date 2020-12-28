@@ -5,6 +5,7 @@ import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
 from mpu.log_utils import DATE_FMT
+from mpu.pyopenxl_utils import EXCEL_ENGINE
 from mpu.stock_handling import MANUAL_PRICE_MARKER
 
 
@@ -19,7 +20,7 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
     )
 
     logger.info("Loading stock excel...")
-    stock_df = pd.read_excel(io=stock_file_path, engine="openpyxl")
+    stock_df = pd.read_excel(io=stock_file_path, engine=EXCEL_ENGINE)
     stock_df = stock_df.fillna("")
     logger.info("Stock loaded.")
 
@@ -75,7 +76,7 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
 
     logger.info("Saving the not updated articles...")
     stock_df[~approved_articles_mask].to_excel(
-        excel_writer=not_updated_file_path, index=False
+        excel_writer=not_updated_file_path, index=False, engine=EXCEL_ENGINE
     )
     logger.info(f"Not updated articles saved at {not_updated_file_path}.")
     logger.info("Update complete.")

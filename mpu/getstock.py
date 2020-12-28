@@ -12,7 +12,7 @@ from mpu.market_extract import (
     get_single_product_market_extract,
 )
 from mpu.stock_handling import get_basic_stats, prepare_stock_df
-from mpu.stock_io import get_stock_file_path, save_stock_df_as_odf_formatted_file
+from mpu.stock_io import get_stock_file_path, save_stock_df_as_excel_formatted_file
 from mpu.strategies_utils import (
     CurrentPriceComputer,
     PriceUpdater,
@@ -143,7 +143,7 @@ def main(
 
     # Saves the result
     logger.info("Saving the stock...")
-    save_stock_df_as_odf_formatted_file(file_path=stock_output_path, df=stock_df)
+    save_stock_df_as_excel_formatted_file(file_path=stock_output_path, df=stock_df)
     logger.info(f"Stock saved at {stock_output_path}.")
 
     # A few stats already

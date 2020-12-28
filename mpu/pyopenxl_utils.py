@@ -3,6 +3,9 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 
 
+EXCEL_ENGINE = "openpyxl"
+
+
 def get_width_value(centimeter_value: float):
     return centimeter_value / 0.24706791635539999
 

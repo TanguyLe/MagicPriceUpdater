@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from mpu.pyopenxl_utils import format_and_save_df
+from mpu.pyopenxl_utils import format_and_save_df, EXCEL_ENGINE
 
 COLUMNS_FORMAT = {
     "idArticle": {"hidden": True},
@@ -36,8 +36,8 @@ def convert_base64_gzipped_string_to_dataframe(b64_zipped_string: str) -> pd.Dat
     return pd.read_csv(io.BytesIO(csv_string), sep=";")
 
 
-def save_stock_df_as_odf_formatted_file(df: pd.DataFrame, file_path: Path) -> None:
-    writer = pd.ExcelWriter(path=str(file_path))
-    df.to_excel(excel_writer=writer, index=False)
+def save_stock_df_as_excel_formatted_file(df: pd.DataFrame, file_path: Path) -> None:
+    writer = pd.ExcelWriter(path=str(file_path), engine=EXCEL_ENGINE)
+    df.to_excel(excel_writer=writer, index=False, engine=EXCEL_ENGINE)
 
     format_and_save_df(df=df, writer=writer, format_config=COLUMNS_FORMAT)
