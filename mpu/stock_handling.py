@@ -55,7 +55,7 @@ def get_basic_stats(stock_df: pd.DataFrame) -> BasicStats:
     total_suggested_price = (stock_df["SuggestedPrice"] * stock_df["Amount"]).sum()
 
     relative_diff = (
-        (total_current_price - total_suggested_price) / total_current_price * 100
+        (total_suggested_price - total_current_price) / total_current_price * 100
     )
 
     return BasicStats(
