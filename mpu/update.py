@@ -61,7 +61,7 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
         while user_input != "confirm":
             print(
                 f"You are about to update {len(to_update_data)} price(s) for a "
-                f"total value difference of {previous_price - new_price:.2f}€. "
+                f"total value difference of {new_price - previous_price:.2f}€. "
                 'Type "confirm" to continue or "quit" to leave.'
             )
             user_input = input()
