@@ -5,6 +5,8 @@ import pytest
 import requests_mock
 from typer.testing import CliRunner
 
+from mpu.cli import app
+
 DF_STOCK = pd.DataFrame(
     data=[
         "1038903060 16416 BirdsofParadise BirdsofParadise 10E TenthEdition 11 2 NM X     1 1 1 EUR".split(
@@ -79,8 +81,6 @@ def test_integration_gestock(tmp_path, mocker):
     new_folder.mkdir()
     os.chdir(str(new_folder))
 
-    from mpu.cli import app
-
     with requests_mock.Mocker() as r_mock:
         r_mock.get(
             "https://api.cardmarket.com/ws/v2.0/output.json/stock/file",
@@ -125,4 +125,3 @@ def test_integration_gestock(tmp_path, mocker):
         pd.read_excel(new_folder / "stock.xlsx", engine="openpyxl"),
         pd.read_excel("test.xlsx", engine="openpyxl"),
     )
-    # TODO Run black & isort

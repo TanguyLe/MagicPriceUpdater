@@ -1,10 +1,5 @@
-import functools
-import logging
-import sys
-from contextlib import contextmanager
 from logging import config
 from pathlib import Path
-from typing import Callable
 
 DATE_FMT = "%Y-%m-%dT%H-%M-%S"
 
@@ -59,15 +54,3 @@ def set_log_conf(log_path: Path) -> None:
             },
         }
     )
-
-
-def log_setup(func: Callable):
-    """wrapper to factoriser the logger setup"""
-
-    set_log_conf(log_path=Path.cwd())
-
-    @functools.wraps(wrapped=func)
-    def wrapped_func(*args, **kwargs):
-        return func(*args, **kwargs)
-
-    return wrapped_func
