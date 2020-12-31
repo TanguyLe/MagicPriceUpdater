@@ -13,6 +13,9 @@ from mpu.update import main as main_update
 app = typer.Typer()
 
 
+__version__ = "0.3.0"
+
+
 @app.command()
 def getstock(
         current_price_strategy: CurrentPriceStrat,
@@ -118,8 +121,20 @@ def stats(
     main_stats(stats_file_path=stats_file_path)
 
 
-def main():
+def version_callback(value: bool):
+    if value:
+        typer.echo(f"mpu: v{__version__}")
+        raise typer.Exit()
+
+
+@app.callback()
+def main_typer(
+        version: bool = typer.Option(None, "-v", "--version", callback=version_callback, is_eager=True),
+):
     set_log_conf(log_path=Path.cwd())
+
+
+def main():
     app()
 
 
