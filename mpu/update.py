@@ -1,12 +1,16 @@
 import logging
+import math
 from pathlib import Path
 
 import pandas as pd
+import typer
 
 from mpu.card_market_client import CardMarketClient
 from mpu.log_utils import DATE_FMT
 from mpu.pyopenxl_utils import EXCEL_ENGINE
 from mpu.stock_handling import MANUAL_PRICE_MARKER
+
+MAX_UPDATES_PER_REQUEST = 100
 
 
 def main(stock_file_path: Path, yes_to_confirmation: bool):
@@ -59,19 +63,23 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
     if not yes_to_confirmation:
         user_input = ""
         while user_input != "confirm":
-            print(
+            user_input = typer.prompt(
                 f"You are about to update {len(to_update_data)} price(s) for a "
                 f"total value difference of {new_price - previous_price:.2f}€. "
                 'Type "confirm" to continue or "quit" to leave.'
             )
-            user_input = input()
 
             if user_input == "quit":
                 logger.info("Cancelling the update and leaving mpu")
                 return
 
     logger.info("Updating the article prices...")
-    client.update_articles_prices(articles_data=to_update_data)
+    nb_chunks = math.ceil(len(to_update_data) / MAX_UPDATES_PER_REQUEST)
+    for i in range(nb_chunks):
+        request_start = i * MAX_UPDATES_PER_REQUEST
+        client.update_articles_prices(
+            articles_data=to_update_data[request_start: request_start + MAX_UPDATES_PER_REQUEST]
+        )
     logger.info("Article prices updated.")
 
     logger.info("Saving the not updated articles...")
