@@ -9,44 +9,6 @@ from mpu.cli import app
 from mpu.pyopenxl_utils import EXCEL_ENGINE, format_and_save_df
 from mpu.stock_io import COLUMNS_FORMAT
 
-DF_STOCK = pd.DataFrame(
-    data=[
-        "1038903060 16416 BirdsofParadise BirdsofParadise 10E TenthEdition 11 2 NM X     1 1 1 EUR 8 12 0".split(
-            " "
-        ),
-        "969967810 16196 Paladinen-Vec Paladinen-Vec 10E TenthEdition 5.5 2 EX X     1 1 1 EUR 5  1".split(
-            " "
-        ),
-    ],
-    columns=[
-        "idArticle",
-        "idProduct",
-        "English Name",
-        "Local Name",
-        "Exp.",
-        "Exp. Name",
-        "Price",
-        "Language",
-        "Condition",
-        "Foil?",
-        "Signed?",
-        "Playset?",
-        "Altered?",
-        "Comments",
-        "Amount",
-        "onSale",
-        "idCurrency",
-        "Currency Code",
-        "SuggestedPrice",
-        "ManualPrice",
-        "PriceApproval"
-    ],
-)
-DF_STOCK["Price"] = pd.to_numeric(DF_STOCK["Price"])
-DF_STOCK["Amount"] = pd.to_numeric(DF_STOCK["Amount"])
-DF_STOCK["ManualPrice"] = pd.to_numeric(DF_STOCK["ManualPrice"])
-DF_STOCK["PriceApproval"] = pd.to_numeric(DF_STOCK["PriceApproval"])
-
 runner = CliRunner()
 
 
@@ -64,12 +26,9 @@ def mock_settings_env_vars(mocker):
 
 
 @pytest.fixture
-def save_stock_file(tmp_path):
+def save_stock_file(test_folder_cdir_path):
     def _save_stock_file(stock_df):
-        new_folder = tmp_path / "testFolder"
-        new_folder.mkdir()
-
-        new_stock_file_path = new_folder / "stock.xlsx"
+        new_stock_file_path = test_folder_cdir_path / "stock.xlsx"
 
         writer = pd.ExcelWriter(path=str(new_stock_file_path), engine=EXCEL_ENGINE)
         stock_df.to_excel(excel_writer=writer, index=False, engine=EXCEL_ENGINE)
@@ -81,8 +40,8 @@ def save_stock_file(tmp_path):
     return _save_stock_file
 
 
-def test_integration_update(save_stock_file, mocker):
-    new_stock_file_path = save_stock_file(stock_df=DF_STOCK)
+def test_integration_update(mocker, save_stock_file, test_stock_df):
+    new_stock_file_path = save_stock_file(stock_df=test_stock_df)
     os.chdir(str(new_stock_file_path.parent))
 
     mocker.patch("mpu.update.typer.prompt", return_value="confirm")
@@ -118,8 +77,8 @@ def test_integration_update(save_stock_file, mocker):
              ).replace(' ', ''))
 
 
-def test_integration_update_multiple_requests(mocker, save_stock_file):
-    new_df_stock = pd.concat([DF_STOCK] * 501).reset_index(drop=True)
+def test_integration_update_multiple_requests(mocker, test_stock_df, save_stock_file):
+    new_df_stock = pd.concat([test_stock_df] * 501).reset_index(drop=True)
 
     new_stock_file_path = save_stock_file(stock_df=new_df_stock)
     os.chdir(str(new_stock_file_path.parent))
