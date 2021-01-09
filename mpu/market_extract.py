@@ -19,11 +19,28 @@ def get_market_extract_path(market_extract_parent_path: Path):
     return _market_extract_path
 
 
+def add_foil_articles_if_needed(
+        market_extract: dict,
+        stock_info: dict,
+        card_market_client: CardMarketClient,
+        max_results: int = 50
+):
+    if market_extract.get("articles_foil") is not None or stock_info["Foil?"] == '':
+        return market_extract
+
+    market_extract["articles_foil"] = card_market_client.get_product_articles(
+        product_id=stock_info["idProduct"],
+        min_condition="EX",
+        max_results=max_results,
+        foil=True
+    )
+
+
 def get_market_extract_from_card_market(
     stock_info: dict,
     card_market_client: CardMarketClient,
     market_extract_path: Path,
-    max_results: int = 50,
+    max_results: int = 100,
 ):
     product_id = stock_info["idProduct"]
 
@@ -31,17 +48,16 @@ def get_market_extract_from_card_market(
         "articles": card_market_client.get_product_articles(
             product_id=product_id,
             min_condition="EX",
-            max_results=max_results,
-            foil=False
-        ),
-        "articles_foil": card_market_client.get_product_articles(
-            product_id=product_id,
-            min_condition="EX",
-            max_results=max_results,
-            foil=True
+            max_results=max_results
         ),
         "info": card_market_client.get_product_info(product_id=product_id),
     }
+    add_foil_articles_if_needed(
+        card_market_client=card_market_client,
+        stock_info=stock_info,
+        market_extract=product_market_extract,
+        max_results=50
+    )
 
     logger.info(f"Saving market extract for {product_id}.")
     with (market_extract_path / f"{product_id}.json").open("w") as product_file:
@@ -74,6 +90,14 @@ def get_single_product_market_extract(
 
     try:
         with single_product_market_extract_path.open("r") as product_prices_file:
-            return json.load(fp=product_prices_file)
+            product_market_extract = json.load(fp=product_prices_file)
+            add_foil_articles_if_needed(
+                card_market_client=card_market_client,
+                stock_info=stock_info,
+                market_extract=product_market_extract,
+                max_results=50
+            )
+            return product_market_extract
+
     except FileNotFoundError:
         return _get_market_extract_from_card_market()
