@@ -13,7 +13,7 @@ from mpu.update import main as main_update
 app = typer.Typer()
 
 
-__version__ = "0.3.0"
+__version__ = "0.4.1"
 
 
 @app.command()
