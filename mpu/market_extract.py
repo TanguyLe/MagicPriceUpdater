@@ -9,14 +9,20 @@ from mpu.card_market_client import CardMarketClient
 logger = logging.getLogger(__name__)
 
 
-def get_market_extract_path(market_extract_parent_path: Path):
+def get_market_extract_path(market_extract_parent_path: Path) -> Path:
     _market_extract_path = market_extract_parent_path / "market_extract"
     try:
-        os.mkdir(_market_extract_path)
+        os.mkdir(str(_market_extract_path))
     except FileExistsError:
         pass
 
     return _market_extract_path
+
+
+def save_market_extract(product_market_extract: dict, market_extract_path: Path, product_id: int) -> None:
+    logger.info(f"Saving market extract for {product_id}.")
+    with (market_extract_path / f"{product_id}.json").open("w") as product_file:
+        json.dump(obj=product_market_extract, fp=product_file)
 
 
 def add_foil_articles_if_needed(
@@ -28,12 +34,15 @@ def add_foil_articles_if_needed(
     if market_extract.get("articles_foil") is not None or stock_info["Foil?"] == '':
         return market_extract
 
-    market_extract["articles_foil"] = card_market_client.get_product_articles(
-        product_id=stock_info["idProduct"],
-        min_condition="EX",
-        max_results=max_results,
-        foil=True
-    )
+    return {
+        **market_extract,
+        **{"articles_foil": card_market_client.get_product_articles(
+                                product_id=stock_info["idProduct"],
+                                min_condition="EX",
+                                max_results=max_results,
+                                foil=True
+        )}
+    }
 
 
 def get_market_extract_from_card_market(
@@ -59,9 +68,11 @@ def get_market_extract_from_card_market(
         max_results=50
     )
 
-    logger.info(f"Saving market extract for {product_id}.")
-    with (market_extract_path / f"{product_id}.json").open("w") as product_file:
-        json.dump(obj=product_market_extract, fp=product_file)
+    save_market_extract(
+        product_market_extract=product_market_extract,
+        product_id=product_id,
+        market_extract_path=market_extract_path
+    )
 
     return product_market_extract
 
@@ -91,12 +102,19 @@ def get_single_product_market_extract(
     try:
         with single_product_market_extract_path.open("r") as product_prices_file:
             product_market_extract = json.load(fp=product_prices_file)
-            add_foil_articles_if_needed(
+            new_product_market_extract = add_foil_articles_if_needed(
                 card_market_client=card_market_client,
                 stock_info=stock_info,
                 market_extract=product_market_extract,
                 max_results=50
             )
+            if new_product_market_extract != product_market_extract:
+                save_market_extract(
+                    product_market_extract=new_product_market_extract,
+                    product_id=product_id,
+                    market_extract_path=market_extract_path
+                )
+
             return product_market_extract
 
     except FileNotFoundError:
