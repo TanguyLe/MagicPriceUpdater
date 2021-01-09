@@ -23,7 +23,7 @@ def get_market_extract_from_card_market(
     stock_info: dict,
     card_market_client: CardMarketClient,
     market_extract_path: Path,
-    max_results: int = 100,
+    max_results: int = 50,
 ):
     product_id = stock_info["idProduct"]
 
@@ -32,7 +32,13 @@ def get_market_extract_from_card_market(
             product_id=product_id,
             min_condition="EX",
             max_results=max_results,
-            foil=True if stock_info["Foil?"] != '' else None
+            foil=False
+        ),
+        "articles_foil": card_market_client.get_product_articles(
+            product_id=product_id,
+            min_condition="EX",
+            max_results=max_results,
+            foil=True
         ),
         "info": card_market_client.get_product_info(product_id=product_id),
     }
