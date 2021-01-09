@@ -20,14 +20,19 @@ def get_market_extract_path(market_extract_parent_path: Path):
 
 
 def get_market_extract_from_card_market(
-    product_id: int,
+    stock_info: dict,
     card_market_client: CardMarketClient,
     market_extract_path: Path,
     max_results: int = 100,
 ):
+    product_id = stock_info["idProduct"]
+
     product_market_extract = {
         "articles": card_market_client.get_product_articles(
-            product_id=product_id, min_condition="EX", max_results=max_results
+            product_id=product_id,
+            min_condition="EX",
+            max_results=max_results,
+            foil=True if stock_info["Foil?"] != '' else None
         ),
         "info": card_market_client.get_product_info(product_id=product_id),
     }
@@ -40,17 +45,19 @@ def get_market_extract_from_card_market(
 
 
 def get_single_product_market_extract(
-    product_id: int,
+    stock_info: dict,
     market_extract_path: Path,
     card_market_client: CardMarketClient,
     max_results: int = 100,
     force_update: bool = False,
 ) -> dict:
     """Get a product price from the local file if possible, otherwise from the API"""
+    product_id = stock_info["idProduct"]
+
     single_product_market_extract_path = market_extract_path / f"{product_id}.json"
     _get_market_extract_from_card_market = partial(
         get_market_extract_from_card_market,
-        product_id=product_id,
+        stock_info=stock_info,
         market_extract_path=market_extract_path,
         card_market_client=card_market_client,
         max_results=max_results,

@@ -34,7 +34,7 @@ def get_product_price(
     product_id = stock_info["idProduct"]
     _get_single_product_market_extract = partial(
         get_single_product_market_extract,
-        product_id=product_id,
+        stock_info=stock_info,
         market_extract_path=market_extract_path,
         card_market_client=card_market_client,
         force_update=force_update,

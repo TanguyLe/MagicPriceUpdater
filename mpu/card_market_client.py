@@ -106,12 +106,15 @@ class CardMarketClient(OAuthAuthenticatedClient):
         product_id: int,
         min_condition: Optional[str] = None,
         max_results: int = 100,
+        foil: Optional[bool] = None
     ) -> dict:
         call_url = self.CARD_MARKET_API_URL / f"/articles/{product_id}"
         if max_results is not None:
             call_url.add(args={"start": 0, "maxResults": max_results})
         if min_condition is not None:
             call_url.add(args={"minCondition": min_condition})
+        if foil is not None:
+            call_url.add(args={"isFoil": foil})
 
         response = self.get_api_call(url=call_url)
 
