@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [0.4.2] - 2021-01-11
+- Wider date column in stats output
+- Handling nans in stats df (replacing `''` by `float("nan")` and removing lines with only nans)
+
 # [0.4.1] - 2021-01-09
 Only getting foil articles when needed
 

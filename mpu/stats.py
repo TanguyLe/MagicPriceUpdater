@@ -9,7 +9,7 @@ from mpu.pyopenxl_utils import format_and_save_df, EXCEL_ENGINE
 INDEX_NAME = "datetime"
 
 COLUMNS_FORMAT = {
-    INDEX_NAME: {"width": 5},
+    INDEX_NAME: {"width": 10},
     "NbCards": {"width": 2.2},
     "NbFoil": {"width": 2.65},
     "NbNotFoil": {"width": 3},
@@ -76,7 +76,10 @@ def main(stats_file_path: Path):
     stats_df["NbCardsSup5"] = ((stock_df["Price"] > 5) * stock_df["Amount"]).sum()
     stats_df["NbCardsInf0.30"] = ((stock_df["Price"] < 0.30) * stock_df["Amount"]).sum()
 
-    final_stats_df = pd.concat(objs=[former_stats_df, stats_df.round(2)], axis="rows")
+    final_stats_df = pd.concat(
+        objs=[former_stats_df.replace('', float("nan")).dropna(how="all"), stats_df.round(2)],
+        axis="rows"
+    )
 
     logger.info("Stats computing ended.")
 
