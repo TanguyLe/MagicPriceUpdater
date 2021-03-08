@@ -116,6 +116,8 @@ class CardMarketClient(OAuthAuthenticatedClient):
         if foil is not None:
             call_url.add(args={"isFoil": foil})
 
+        call_url.add(args={"isSigned": False, "isAltered": False})
+
         response = self.get_api_call(url=call_url)
 
         return response.json()["article"]
