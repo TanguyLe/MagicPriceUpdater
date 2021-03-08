@@ -12,6 +12,21 @@ from mpu.stock_io import convert_base64_gzipped_string_to_dataframe
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_LANGUAGE = "French"
+LANGUAGES = (
+    "English", "French", "German", "Spanish", "Italian", "Simplified Chinese",
+    "Japanese", "Portuguese", "Russian", "Korean", "Traditional Chinese"
+)
+CONDITIONS = ("MT", "NM", "EX", "GD", "LP", "PL", "PO")
+
+
+def get_language_id(language: str):
+    try:
+        return LANGUAGES.index(language) + 1
+    except ValueError:
+        logger.error("Unknown language \"%s\", using \"%s\"", language, DEFAULT_LANGUAGE)
+        return LANGUAGES.index(DEFAULT_LANGUAGE) + 1
+
 
 class ApiError(requests.HTTPError):
     """Error when requesting the API"""
@@ -106,6 +121,7 @@ class CardMarketClient(OAuthAuthenticatedClient):
         product_id: int,
         min_condition: Optional[str] = None,
         max_results: int = 100,
+        language_id: Optional[int] = None,
         foil: Optional[bool] = None
     ) -> dict:
         call_url = self.CARD_MARKET_API_URL / f"/articles/{product_id}"
@@ -115,6 +131,8 @@ class CardMarketClient(OAuthAuthenticatedClient):
             call_url.add(args={"minCondition": min_condition})
         if foil is not None:
             call_url.add(args={"isFoil": foil})
+        if language_id is not None:
+            call_url.add(args={"idLanguage": language_id})
 
         call_url.add(args={"isSigned": False, "isAltered": False})
 

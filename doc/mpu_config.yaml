@@ -1,4 +1,6 @@
 request_options:
+  # Be careful, adding a language here mean another request
+  # If you don't want to filter the request by language, just use "languages: {}"
   languages:
     - CARD
   min_condition: EX
@@ -8,7 +10,6 @@ request_options:
     German: 200
   # For the max results not specified by language above
   default_max_results: 200
-  one_request_per_language: false
-  one_request_per_quality: false
+  one_request_per_condition: false
 
 strategies_options: {}
