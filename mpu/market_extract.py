@@ -34,6 +34,8 @@ def add_foil_articles_if_needed(
     if market_extract.get("articles_foil") is not None or stock_info["Foil?"] == '':
         return market_extract
 
+    # TODO Refacto
+    # TODO Do the request split also for this one
     return {
         **market_extract,
         **{"articles_foil": card_market_client.get_product_articles(
