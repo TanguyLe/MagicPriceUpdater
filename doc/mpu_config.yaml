@@ -1,6 +1,7 @@
 request_options:
   # Be careful, adding a language here mean another request
   # If you don't want to filter the request by language, just use "languages: {}"
+  # Any language name is fine, and also "CARD" for the card language
   languages:
     - CARD
   min_condition: EX

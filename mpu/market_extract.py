@@ -59,6 +59,8 @@ def get_product_articles_from_card_market_with_languages(
         language_ids = [
             get_language_id(language) if language != "CARD" else stock_info["Language"] for language in languages_names
         ]
+        # Removing duplicated languages
+        language_ids = list(set(language_ids))
 
         for language_name, language_id in zip(languages_names, language_ids):
             max_results = config.get("max_results").get(language_name, config.get("default_max_results"))
