@@ -7,6 +7,7 @@ from typing import Optional
 import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
+from mpu.config_handling import load_config_file
 from mpu.market_extract import (
     get_market_extract_path,
     get_single_product_market_extract,
@@ -66,7 +67,7 @@ def get_product_price(
 def main(
     current_price_strategy: str,
     price_update_strategy: str,
-    strategies_options_path: Optional[Path],
+    config_path: Path,
     market_extract_path: Path,
     output_path: Path,
     force_update: bool,
@@ -85,9 +86,8 @@ def main(
     logger.info(f"Market extract at {market_extract_path}.")
 
     stock_output_path = get_stock_file_path(folder_path=output_path)
-    strategies_options = get_strategies_options(
-        strategies_options_path=strategies_options_path
-    )
+    config = load_config_file(config_file_path=config_path)
+    strategies_options = get_strategies_options(config=config)
 
     logger.info(
         f"Using the following strategies: current_price={current_price_strategy} / price_update={price_update_strategy}"

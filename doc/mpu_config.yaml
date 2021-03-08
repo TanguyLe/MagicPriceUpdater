@@ -1,0 +1,14 @@
+request_options:
+  languages:
+    - CARD
+  min_condition: EX
+  max_results:
+    English: 200
+    French: 20
+    German: 200
+  # For the max results not specified by language above
+  default_max_results: 200
+  one_request_per_language: false
+  one_request_per_quality: false
+
+strategies_options: {}

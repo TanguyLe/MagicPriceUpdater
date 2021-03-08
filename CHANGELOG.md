@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Not requesting the signed and altered cards
+- Switch to a mandatory config path for strategies' options
 
 # [0.4.2] - 2021-01-11
 - Wider date column in stats output

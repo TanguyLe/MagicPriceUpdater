@@ -16,20 +16,17 @@ class StrategiesOptions(NamedTuple):
     price_update: Dict[str, Any]
 
 
-def get_strategies_options(
-    strategies_options_path: Optional[Path],
-) -> StrategiesOptions:
+def get_strategies_options(config: dict) -> StrategiesOptions:
     """Returns the current strategy options"""
 
-    if strategies_options_path is not None:
-        with strategies_options_path.open("r") as strategies_options_file:
-            strategies_options = json.load(fp=strategies_options_file)
+    strategies_options = config.get("strategies_options", None)
+    if strategies_options is None or not strategies_options:
+        return StrategiesOptions(current_price={}, price_update={})
 
-            return StrategiesOptions(
-                current_price=strategies_options["current_price"],
-                price_update=strategies_options["price_update"],
-            )
-    return StrategiesOptions(current_price={}, price_update={})
+    return StrategiesOptions(
+        current_price=strategies_options["current_price"],
+        price_update=strategies_options["price_update"],
+    )
 
 
 CurrentPriceStrat = enum.Enum(
