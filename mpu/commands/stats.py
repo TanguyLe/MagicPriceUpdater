@@ -29,6 +29,9 @@ def get_stats_file_path(folder_path: Path) -> Path:
     return folder_path / "stockStats.xlsx"
 
 
+AGGS = ["count", "sum", ]
+
+
 def main(stats_file_path: Path):
     logger = logging.getLogger(__name__)
     logger.info("Starting stats...")
@@ -60,21 +63,45 @@ def main(stats_file_path: Path):
     stats_df = pd.DataFrame(index=pd.to_datetime([pd.Timestamp("now")]))
     stats_df.index.name = INDEX_NAME
 
+    stock_df["PriceCategories"] = pd.cut(
+        x=stock_df["Price"],
+        bins=[0, 0.3, 5, 30, 1000000],
+        labels=["Inf0.30", "0.30to5", "5to30", "Sup30"],
+        include_lowest=True,
+        right=False
+    )
+    stock_df = stock_df.replace(to_replace={"X": "YFoil"}).fillna({"Foil?": "NFoil", "Signed?": "N"})
+    stock_df["PriceXAmount"] = stock_df["Price"] * stock_df["Amount"]
+
+    stats_df["NbCards"] = stock_df["Amount"].sum()
+    stats_df["AvgCardPrice"] = stock_df["PriceXAmount"].sum() / stats_df["NbCards"]
+    stats_df["StockTotalValue"] = (stock_df["PriceXAmount"]).sum()
+
     foil_stats = (
-        stock_df.replace(to_replace={"X": "Y"})
-        .fillna("N")
-        .groupby(by="Foil?")
+        stock_df.groupby(by="Foil?")
         .agg({"Amount": "sum"})
     )
     stats_df["NbFoil"] = foil_stats.loc["Y", "Amount"]
     stats_df["NbNotFoil"] = foil_stats.loc["N", "Amount"]
     stats_df["FoilPercentage"] = (foil_stats.loc["Y"] / foil_stats.sum() * 100)[0]
 
-    stats_df["NbCards"] = stock_df["Amount"].sum()
-    stats_df["AvgCardPrice"] = stock_df["Price"].mean()
-    stats_df["StockTotalValue"] = (stock_df["Amount"] * stock_df["Price"]).sum()
     stats_df["NbCardsSup5"] = ((stock_df["Price"] > 5) * stock_df["Amount"]).sum()
     stats_df["NbCardsInf0.30"] = ((stock_df["Price"] < 0.30) * stock_df["Amount"]).sum()
+
+    stats_df2 = stats_df.copy()
+    for stats_col in ["PriceCategories", "Foil?"]:
+        bin_stats = stock_df.groupby(by=stats_col).agg({"Amount": "sum", "PriceXAmount": "sum"})
+        bin_stats = bin_stats.rename(columns={"Amount": "NbCards", "PriceXAmount": "StockTotalValue"})
+        bin_stats["AvgCardPrice"] = bin_stats["StockTotalValue"] / stats_df["NbCards"]
+        bin_stats_stacked = bin_stats.stack()
+        bin_stats_stacked.index = [a + '-' + b for a, b in bin_stats_stacked.index]
+        bin_stats_stacked = bin_stats_stacked.to_frame().T
+        bin_stats_stacked.index = stats_df.index
+
+        stats_df2 = pd.concat([stats_df2, bin_stats_stacked], axis="columns")
+
+    # TODO Fix and refactor this
+    # stats_df["FoilPercentage"] = (foil_stats.loc["YFoil"] / foil_stats.sum() * 100)[0]
 
     final_stats_df = pd.concat(
         objs=[former_stats_df.replace('', float("nan")).dropna(how="all"), stats_df.round(2)],
