@@ -6,7 +6,7 @@ import requests_mock
 from typer.testing import CliRunner
 
 from mpu.cli import app
-from mpu.pyopenxl_utils import EXCEL_ENGINE, format_and_save_df
+from mpu.utils.pyopenxl_utils import EXCEL_ENGINE, format_and_save_df
 from mpu.stock_io import COLUMNS_FORMAT
 
 runner = CliRunner()

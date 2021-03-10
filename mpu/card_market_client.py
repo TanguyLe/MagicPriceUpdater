@@ -4,7 +4,7 @@ from typing import Optional
 import pandas as pd
 from furl import furl
 
-from mpu.oauth_client import OAuthAuthenticatedClient
+from mpu.utils.oauth_client import OAuthAuthenticatedClient
 from mpu.stock_io import convert_base64_gzipped_string_to_dataframe
 
 logger = logging.getLogger(__name__)

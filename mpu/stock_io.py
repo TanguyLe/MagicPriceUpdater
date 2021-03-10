@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from mpu.pyopenxl_utils import format_and_save_df, EXCEL_ENGINE
+from mpu.utils.pyopenxl_utils import format_and_save_df, EXCEL_ENGINE
 
 COLUMNS_FORMAT = {
     "idArticle": {"hidden": True},

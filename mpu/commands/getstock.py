@@ -11,7 +11,7 @@ from mpu.market_extract import (
 from mpu.product_price import get_product_price
 from mpu.stock_handling import get_basic_stats, prepare_stock_df
 from mpu.stock_io import get_stock_file_path, save_stock_df_as_excel_formatted_file
-from mpu.strategies_utils import (
+from mpu.utils.strategies_utils import (
     CurrentPriceComputer,
     PriceUpdater,
     get_strategies_options,

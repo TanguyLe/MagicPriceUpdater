@@ -6,7 +6,7 @@ import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
 from mpu.market_extract import get_single_product_market_extract
-from mpu.strategies_utils import CurrentPriceComputer, SuitableExamplesShortage
+from mpu.utils.strategies_utils import CurrentPriceComputer, SuitableExamplesShortage
 
 
 def get_product_price(

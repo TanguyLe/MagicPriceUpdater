@@ -2,13 +2,13 @@ from pathlib import Path
 
 import typer
 
-from mpu.getstock import main as main_getstock
-from mpu.log_utils import set_log_conf
-from mpu.stats import get_stats_file_path
-from mpu.stats import main as main_stats
+from mpu.commands.getstock import main as main_getstock
+from mpu.utils.log_utils import set_log_conf
+from mpu.commands.stats import get_stats_file_path
+from mpu.commands.stats import main as main_stats
 from mpu.stock_io import get_stock_file_path
-from mpu.strategies_utils import CurrentPriceStrat, PriceUpdaterStrat
-from mpu.update import main as main_update
+from mpu.utils.strategies_utils import CurrentPriceStrat, PriceUpdaterStrat
+from mpu.commands.update import main as main_update
 
 app = typer.Typer()
 
