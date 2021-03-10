@@ -45,7 +45,6 @@ class OAuthAuthenticatedClient:
     ) -> requests.Response:
         url_to_modify = url.copy()
         self.auth.realm = url_to_modify.remove(args=True, fragment=True)
-        logger.info(f"Get request to {url}")
 
         response = requests.get(url=url, params=params, auth=self.auth)
         try:
@@ -54,6 +53,8 @@ class OAuthAuthenticatedClient:
             err_msg = f"HTTP error on {url}: {error}"
             logger.error(err_msg)
             raise ApiError(err_msg) from error
+        finally:
+            logger.info(f"{response.status_code}: get request to {url}")
 
         return response
 

@@ -7,8 +7,7 @@ MagicPriceUpdate: mpu
 
 Usage:
   mpu getstock <current-price-strat> <price-update-strat> [--market-extract-path|-mep=<mep>, 
-    --strategies-options-path|sop=<sop> --output-path|op=<op>, 
-    --force-download|-f, --parallel-execution|-p]
+    --config-path|cp=<cp> --output-path|op=<op>, --force-download|-f, --parallel-execution|-p]
   mpu update [--stock-file-path|sfp=<sfp> --yes-to-confirmation|-y]
   mpu stats [--stats-file-path|sfp=<sfp>
   mpu (-h | --help)
@@ -19,7 +18,7 @@ Options:
   --version     Show version.
   --force-download|-f Force the re-download of the market extract regardless if it exists already.
   --market-extract-path|-mep=<mep>  Market extract folder path [default: current-directory].
-  --strategies-options-path|-sop=<sop> Path to the strategy options. If not provided, no options are used [default: None].
+  --config-path|-cp=<cp> Path to the config. It is mandatory.
   --output-path|-op=<op> Output folder path [default: current-directory].
   --stock-file-path|-sfp=<sfp> Input stock file path [default: current-directory/stock.csv].
   --stats-file-path|-sfp=<sfp> Input stats file path [default: current-directory/stockStats.csv].
@@ -33,7 +32,7 @@ Options:
     2. For each product will try to use a market
     extract file named `<product_id>.json` in the `<mep>`.
     3. If not found or if `--force-download` was passed, will request the Card Market API to get 
-    the market extract and save it as `<product_id>.json`.
+    the market extract and save it as `<product_id>.json`. (Request params depending on the config)
     4. For each product, will compute the current price using the
     market extract and the `<current-price-strat>` with its options defined in the `<sep>`. It will create a new column named
     `"SuggestedPrice"`.
@@ -68,5 +67,3 @@ remove a `"<M>"` marker) and `"ManualPrice"` columns of the stock file.
 - `<current-price-strat>` and `<price-update-strat>` possible values 
 depend on the implemented strategies
 - The stats command may evolve a lot to compute various indicators
-- The file for strategy options must be a json file, with at least the following root keys:
-`"current_price"` and `"price_update"` as in [this example](./strategies_options_example.json).

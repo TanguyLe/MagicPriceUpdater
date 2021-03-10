@@ -63,7 +63,7 @@ class CardMarketClient(OAuthAuthenticatedClient):
         max_results: int = 100,
         language_id: Optional[int] = None,
         foil: Optional[bool] = None
-    ) -> dict:
+    ) -> list:
         call_url = self.CARD_MARKET_API_URL / f"/articles/{product_id}"
         if max_results is not None:
             call_url.add(args={"start": 0, "maxResults": max_results})
@@ -77,6 +77,9 @@ class CardMarketClient(OAuthAuthenticatedClient):
         call_url.add(args={"isSigned": False, "isAltered": False})
 
         response = self.get_api_call(url=call_url)
+
+        if response.status_code == 204:
+            return []
 
         return response.json()["article"]
 

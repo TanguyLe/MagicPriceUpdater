@@ -3,6 +3,7 @@ import logging
 import os
 from functools import partial
 from pathlib import Path
+from typing import Optional
 
 from mpu.card_market_client import CardMarketClient, get_language_id, get_conditions
 
@@ -29,19 +30,22 @@ def add_foil_articles_if_needed(
         market_extract: dict,
         stock_info: dict,
         card_market_client: CardMarketClient,
-        max_results: int = 50
+        config: dict,
+        max_results: int = 50,
 ):
     if market_extract.get("articles_foil") is not None or stock_info["Foil?"] == '':
         return market_extract
 
-    # TODO Refacto
-    # TODO Do the request split also for this one
+    _config = config.copy()
+    _config["max_results"] = {k: max_results for k, v in _config["max_results"].items()}
+    _config["default_max_results"] = max_results
+
     return {
         **market_extract,
-        **{"articles_foil": card_market_client.get_product_articles(
-            product_id=stock_info["idProduct"],
-            min_condition="EX",
-            max_results=max_results,
+        **{"articles_foil": get_product_articles_language_and_conditions(
+            card_market_client=card_market_client,
+            stock_info=stock_info,
+            config=_config,
             foil=True
         )}
     }
@@ -51,7 +55,8 @@ def get_product_articles_from_card_market_with_languages(
         stock_info: dict,
         card_market_client: CardMarketClient,
         config: dict,
-        min_condition: str
+        min_condition: str,
+        foil: Optional[bool] = None
 ):
     product_id = stock_info["idProduct"]
 
@@ -61,6 +66,7 @@ def get_product_articles_from_card_market_with_languages(
             product_id=product_id,
             min_condition=min_condition,
             max_results=config.get("default_max_results"),
+            foil=foil,
         )
 
     # Case of multiple requests per language
@@ -79,7 +85,8 @@ def get_product_articles_from_card_market_with_languages(
                 product_id=product_id,
                 min_condition=min_condition,
                 max_results=max_results,
-                language_id=language_id
+                language_id=language_id,
+                foil=foil
             )
         )
 
@@ -87,14 +94,15 @@ def get_product_articles_from_card_market_with_languages(
 
 
 def get_product_articles_language_and_conditions(
-        stock_info: dict, card_market_client: CardMarketClient, config: dict
+        stock_info: dict, card_market_client: CardMarketClient, config: dict, foil: Optional[bool] = None
 ):
     if not config.get("one_request_per_condition", False):
         return get_product_articles_from_card_market_with_languages(
             stock_info=stock_info,
             card_market_client=card_market_client,
             config=config,
-            min_condition=config["min_condition"]
+            min_condition=config["min_condition"],
+            foil=foil
         )
 
     # Case of multiple requests per condition
@@ -106,7 +114,8 @@ def get_product_articles_language_and_conditions(
                 stock_info=stock_info,
                 card_market_client=card_market_client,
                 config=config,
-                min_condition=condition
+                min_condition=condition,
+                foil=foil
             )
         )
 
@@ -133,6 +142,7 @@ def get_market_extract_from_card_market(
         card_market_client=card_market_client,
         stock_info=stock_info,
         market_extract=product_market_extract,
+        config=config,
         max_results=50
     )
 
@@ -170,20 +180,21 @@ def get_single_product_market_extract(
     try:
         with single_product_market_extract_path.open("r") as product_prices_file:
             product_market_extract = json.load(fp=product_prices_file)
-            new_product_market_extract = add_foil_articles_if_needed(
-                card_market_client=card_market_client,
-                stock_info=stock_info,
-                market_extract=product_market_extract,
-                max_results=50
-            )
-            if new_product_market_extract != product_market_extract:
-                save_market_extract(
-                    product_market_extract=new_product_market_extract,
-                    product_id=product_id,
-                    market_extract_path=market_extract_path
-                )
-
-            return product_market_extract
-
     except FileNotFoundError:
         return _get_market_extract_from_card_market()
+
+    new_product_market_extract = add_foil_articles_if_needed(
+        card_market_client=card_market_client,
+        stock_info=stock_info,
+        market_extract=product_market_extract,
+        config=config,
+        max_results=50
+    )
+    if new_product_market_extract != product_market_extract:
+        save_market_extract(
+            product_market_extract=new_product_market_extract,
+            product_id=product_id,
+            market_extract_path=market_extract_path
+        )
+
+    return product_market_extract
