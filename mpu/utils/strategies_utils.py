@@ -1,10 +1,9 @@
 import enum
-import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, NamedTuple, Optional
+from typing import Any, Dict, NamedTuple
 
-sys.path.append(str(Path(__file__).parent / "MPUStrategies"))
+sys.path.append(str(Path(__file__).parent.parent / "MPUStrategies"))
 
 from mpu_strategies.compute_current_price import CurrentPriceComputer
 from mpu_strategies.errors import SuitableExamplesShortage
