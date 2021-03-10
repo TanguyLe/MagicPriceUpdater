@@ -4,7 +4,7 @@ import os
 from functools import partial
 from pathlib import Path
 
-from mpu.card_market_client import CardMarketClient, CONDITIONS, get_language_id
+from mpu.card_market_client import CardMarketClient, get_language_id, get_conditions
 
 logger = logging.getLogger(__name__)
 
@@ -54,34 +54,63 @@ def get_product_articles_from_card_market_with_languages(
         min_condition: str
 ):
     product_id = stock_info["idProduct"]
-    articles = []
 
     languages_names = config.get("languages")
-    if languages_names is not None:
-        language_ids = [
-            get_language_id(language) if language != "CARD" else stock_info["Language"] for language in languages_names
-        ]
-        # Removing duplicated languages
-        language_ids = list(set(language_ids))
+    if languages_names is None:
+        return card_market_client.get_product_articles(
+            product_id=product_id,
+            min_condition=min_condition,
+            max_results=config.get("default_max_results"),
+        )
 
-        for language_name, language_id in zip(languages_names, language_ids):
-            max_results = config.get("max_results").get(language_name, config.get("default_max_results"))
-            articles.extend(
-                card_market_client.get_product_articles(
-                    product_id=product_id,
-                    min_condition=min_condition,
-                    max_results=max_results,
-                    language_id=language_id
-                )
+    # Case of multiple requests per language
+    articles = []
+
+    language_ids = [
+        get_language_id(language) if language != "CARD" else stock_info["Language"] for language in languages_names
+    ]
+    # Removing duplicated languages
+    language_ids = list(set(language_ids))
+
+    for language_name, language_id in zip(languages_names, language_ids):
+        max_results = config.get("max_results").get(language_name, config.get("default_max_results"))
+        articles.extend(
+            card_market_client.get_product_articles(
+                product_id=product_id,
+                min_condition=min_condition,
+                max_results=max_results,
+                language_id=language_id
             )
+        )
 
-        return articles
+    return articles
 
-    return card_market_client.get_product_articles(
-        product_id=product_id,
-        min_condition=min_condition,
-        max_results=config.get("default_max_results"),
-    )
+
+def get_product_articles_language_and_conditions(
+        stock_info: dict, card_market_client: CardMarketClient, config: dict
+):
+    if not config.get("one_request_per_condition", False):
+        return get_product_articles_from_card_market_with_languages(
+            stock_info=stock_info,
+            card_market_client=card_market_client,
+            config=config,
+            min_condition=config["min_condition"]
+        )
+
+    # Case of multiple requests per condition
+    product_articles = []
+
+    for condition in get_conditions(config["min_condition"]):
+        product_articles.extend(
+            get_product_articles_from_card_market_with_languages(
+                stock_info=stock_info,
+                card_market_client=card_market_client,
+                config=config,
+                min_condition=condition
+            )
+        )
+
+    return product_articles
 
 
 def get_market_extract_from_card_market(
@@ -91,35 +120,13 @@ def get_market_extract_from_card_market(
         config: dict
 ):
     product_id = stock_info["idProduct"]
-    min_condition = config["min_condition"]
-
-    product_articles = []
-
-    if config.get("one_request_per_condition", False):
-        try:
-            lowest_quality_index = CONDITIONS.index(min_condition)
-        except ValueError:
-            raise ValueError("Unknown condition \"%s\", use one of %s", config["min_condition"], CONDITIONS)
-
-        for condition in CONDITIONS[:lowest_quality_index]:
-            product_articles.extend(
-                get_product_articles_from_card_market_with_languages(
-                    stock_info=stock_info,
-                    card_market_client=card_market_client,
-                    config=config,
-                    min_condition=condition
-                )
-            )
-
-    get_product_articles_from_card_market_with_languages(
-        stock_info=stock_info,
-        card_market_client=card_market_client,
-        config=config,
-        min_condition=min_condition
-    )
 
     product_market_extract = {
-        "articles": product_articles,
+        "articles": get_product_articles_language_and_conditions(
+            stock_info=stock_info,
+            card_market_client=card_market_client,
+            config=config
+        ),
         "info": card_market_client.get_product_info(product_id=product_id),
     }
     add_foil_articles_if_needed(

@@ -25,6 +25,16 @@ def get_language_id(language: str):
         return LANGUAGES.index(DEFAULT_LANGUAGE) + 1
 
 
+def get_conditions(min_condition: str):
+    try:
+        lowest_quality_index = CONDITIONS.index(min_condition)
+    except ValueError:
+        raise ValueError("Unknown condition \"%s\", use one of %s", min_condition, CONDITIONS)
+
+    for condition in CONDITIONS[:lowest_quality_index]:
+        yield condition
+
+
 class CardMarketClient(OAuthAuthenticatedClient):
     CARD_MARKET_API_URL = furl("https://api.cardmarket.com/ws/v2.0/output.json")
 

@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Optional
 
@@ -6,7 +7,7 @@ from authlib.integrations.requests_client import OAuth1Auth
 from dicttoxml import dicttoxml
 from furl import furl
 
-from mpu.card_market_client import logger
+logger = logging.getLogger(__name__)
 
 
 class ApiError(requests.HTTPError):
