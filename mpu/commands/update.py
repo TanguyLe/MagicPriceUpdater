@@ -6,8 +6,8 @@ import pandas as pd
 import typer
 
 from mpu.card_market_client import CardMarketClient
-from mpu.log_utils import DATE_FMT
-from mpu.pyopenxl_utils import EXCEL_ENGINE
+from mpu.utils.log_utils import DATE_FMT
+from mpu.utils.pyopenxl_utils import EXCEL_ENGINE
 from mpu.stock_handling import MANUAL_PRICE_MARKER
 
 MAX_UPDATES_PER_REQUEST = 100

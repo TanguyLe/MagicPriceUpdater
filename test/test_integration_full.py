@@ -6,7 +6,7 @@ import requests_mock
 from typer.testing import CliRunner
 
 from mpu.cli import app
-from mpu.pyopenxl_utils import EXCEL_ENGINE
+from mpu.utils.pyopenxl_utils import EXCEL_ENGINE
 
 
 @pytest.fixture

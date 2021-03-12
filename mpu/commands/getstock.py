@@ -2,71 +2,26 @@ import logging
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
-from typing import Optional
-
-import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
+from mpu.config_handling import load_config_file
 from mpu.market_extract import (
     get_market_extract_path,
-    get_single_product_market_extract,
 )
+from mpu.product_price import get_product_price
 from mpu.stock_handling import get_basic_stats, prepare_stock_df
 from mpu.stock_io import get_stock_file_path, save_stock_df_as_excel_formatted_file
-from mpu.strategies_utils import (
+from mpu.utils.strategies_utils import (
     CurrentPriceComputer,
     PriceUpdater,
-    SuitableExamplesShortage,
     get_strategies_options,
 )
-
-
-def get_product_price(
-    row: pd.Series,
-    market_extract_path: Path,
-    current_price_computer: CurrentPriceComputer,
-    card_market_client: CardMarketClient,
-    force_update: bool,
-) -> float:
-    logger = logging.getLogger(__name__)
-
-    stock_info: dict = row.to_dict()
-    product_id = stock_info["idProduct"]
-    _get_single_product_market_extract = partial(
-        get_single_product_market_extract,
-        stock_info=stock_info,
-        market_extract_path=market_extract_path,
-        card_market_client=card_market_client,
-        force_update=force_update,
-    )
-
-    try:
-        market_extract = _get_single_product_market_extract()
-    except Exception as error:
-        logger.error(
-            f"Error when trying to extract data for product {product_id}: {error.__repr__()}"
-        )
-        return float("nan")
-
-    try:
-        return current_price_computer.get_current_price_from_market_extract(
-            stock_info=stock_info, market_extract=market_extract
-        )
-    except SuitableExamplesShortage:
-        # We try with a larger request in case of a lack of suitable examples
-        market_extract = _get_single_product_market_extract(max_results=500)
-        try:
-            return current_price_computer.get_current_price_from_market_extract(
-                stock_info=stock_info, market_extract=market_extract
-            )
-        except SuitableExamplesShortage:
-            return float("nan")
 
 
 def main(
     current_price_strategy: str,
     price_update_strategy: str,
-    strategies_options_path: Optional[Path],
+    config_path: Path,
     market_extract_path: Path,
     output_path: Path,
     force_update: bool,
@@ -85,9 +40,8 @@ def main(
     logger.info(f"Market extract at {market_extract_path}.")
 
     stock_output_path = get_stock_file_path(folder_path=output_path)
-    strategies_options = get_strategies_options(
-        strategies_options_path=strategies_options_path
-    )
+    config = load_config_file(config_file_path=config_path)
+    strategies_options = get_strategies_options(config=config)
 
     logger.info(
         f"Using the following strategies: current_price={current_price_strategy} / price_update={price_update_strategy}"
@@ -108,6 +62,7 @@ def main(
         current_price_computer=current_price_computer,
         market_extract_path=market_extract_path,
         card_market_client=client,
+        config=config["request_options"],
         force_update=force_update,
     )
 

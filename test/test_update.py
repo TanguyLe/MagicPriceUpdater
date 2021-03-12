@@ -6,8 +6,8 @@ import requests_mock
 from typer.testing import CliRunner
 
 from mpu.cli import app
-from mpu.pyopenxl_utils import EXCEL_ENGINE, format_and_save_df
-from mpu.stock_io import COLUMNS_FORMAT
+from mpu.utils.pyopenxl_utils import EXCEL_ENGINE, format_and_save_df
+from mpu.excel_formats import STOCK_COLUMNS_FORMAT
 
 runner = CliRunner()
 
@@ -33,7 +33,7 @@ def save_stock_file(test_folder_cdir_path):
         writer = pd.ExcelWriter(path=str(new_stock_file_path), engine=EXCEL_ENGINE)
         stock_df.to_excel(excel_writer=writer, index=False, engine=EXCEL_ENGINE)
 
-        format_and_save_df(df=stock_df, writer=writer, format_config=COLUMNS_FORMAT)
+        format_and_save_df(df=stock_df, writer=writer, format_config=STOCK_COLUMNS_FORMAT)
 
         return new_stock_file_path
 

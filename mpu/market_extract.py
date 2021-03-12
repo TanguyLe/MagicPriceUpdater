@@ -3,8 +3,9 @@ import logging
 import os
 from functools import partial
 from pathlib import Path
+from typing import Optional
 
-from mpu.card_market_client import CardMarketClient
+from mpu.card_market_client import CardMarketClient, get_language_id, get_conditions
 
 logger = logging.getLogger(__name__)
 
@@ -29,35 +30,111 @@ def add_foil_articles_if_needed(
         market_extract: dict,
         stock_info: dict,
         card_market_client: CardMarketClient,
-        max_results: int = 50
+        config: dict,
+        max_results: int = 50,
 ):
     if market_extract.get("articles_foil") is not None or stock_info["Foil?"] == '':
         return market_extract
 
+    _config = config.copy()
+    _config["max_results"] = {k: max_results for k, v in _config["max_results"].items()}
+    _config["default_max_results"] = max_results
+
     return {
         **market_extract,
-        **{"articles_foil": card_market_client.get_product_articles(
-                                product_id=stock_info["idProduct"],
-                                min_condition="EX",
-                                max_results=max_results,
-                                foil=True
+        **{"articles_foil": get_product_articles_language_and_conditions(
+            card_market_client=card_market_client,
+            stock_info=stock_info,
+            config=_config,
+            foil=True
         )}
     }
 
 
+def get_product_articles_from_card_market_with_languages(
+        stock_info: dict,
+        card_market_client: CardMarketClient,
+        config: dict,
+        min_condition: str,
+        foil: Optional[bool] = None
+):
+    product_id = stock_info["idProduct"]
+
+    languages_names = config.get("languages")
+    if languages_names is None:
+        return card_market_client.get_product_articles(
+            product_id=product_id,
+            min_condition=min_condition,
+            max_results=config.get("default_max_results"),
+            foil=foil,
+        )
+
+    # Case of multiple requests per language
+    articles = []
+
+    language_ids = [
+        get_language_id(language) if language != "CARD" else stock_info["Language"] for language in languages_names
+    ]
+    # Removing duplicated languages
+    language_ids = list(set(language_ids))
+
+    for language_name, language_id in zip(languages_names, language_ids):
+        max_results = config.get("max_results").get(language_name, config.get("default_max_results"))
+        articles.extend(
+            card_market_client.get_product_articles(
+                product_id=product_id,
+                min_condition=min_condition,
+                max_results=max_results,
+                language_id=language_id,
+                foil=foil
+            )
+        )
+
+    return articles
+
+
+def get_product_articles_language_and_conditions(
+        stock_info: dict, card_market_client: CardMarketClient, config: dict, foil: Optional[bool] = None
+):
+    if not config.get("one_request_per_condition", False):
+        return get_product_articles_from_card_market_with_languages(
+            stock_info=stock_info,
+            card_market_client=card_market_client,
+            config=config,
+            min_condition=config["min_condition"],
+            foil=foil
+        )
+
+    # Case of multiple requests per condition
+    product_articles = []
+
+    for condition in get_conditions(config["min_condition"]):
+        product_articles.extend(
+            get_product_articles_from_card_market_with_languages(
+                stock_info=stock_info,
+                card_market_client=card_market_client,
+                config=config,
+                min_condition=condition,
+                foil=foil
+            )
+        )
+
+    return product_articles
+
+
 def get_market_extract_from_card_market(
-    stock_info: dict,
-    card_market_client: CardMarketClient,
-    market_extract_path: Path,
-    max_results: int = 100,
+        stock_info: dict,
+        card_market_client: CardMarketClient,
+        market_extract_path: Path,
+        config: dict
 ):
     product_id = stock_info["idProduct"]
 
     product_market_extract = {
-        "articles": card_market_client.get_product_articles(
-            product_id=product_id,
-            min_condition="EX",
-            max_results=max_results
+        "articles": get_product_articles_language_and_conditions(
+            stock_info=stock_info,
+            card_market_client=card_market_client,
+            config=config
         ),
         "info": card_market_client.get_product_info(product_id=product_id),
     }
@@ -65,6 +142,7 @@ def get_market_extract_from_card_market(
         card_market_client=card_market_client,
         stock_info=stock_info,
         market_extract=product_market_extract,
+        config=config,
         max_results=50
     )
 
@@ -78,11 +156,11 @@ def get_market_extract_from_card_market(
 
 
 def get_single_product_market_extract(
-    stock_info: dict,
-    market_extract_path: Path,
-    card_market_client: CardMarketClient,
-    max_results: int = 100,
-    force_update: bool = False,
+        stock_info: dict,
+        market_extract_path: Path,
+        card_market_client: CardMarketClient,
+        config: dict,
+        force_update: bool = False,
 ) -> dict:
     """Get a product price from the local file if possible, otherwise from the API"""
     product_id = stock_info["idProduct"]
@@ -93,7 +171,7 @@ def get_single_product_market_extract(
         stock_info=stock_info,
         market_extract_path=market_extract_path,
         card_market_client=card_market_client,
-        max_results=max_results,
+        config=config
     )
 
     if force_update:
@@ -102,20 +180,21 @@ def get_single_product_market_extract(
     try:
         with single_product_market_extract_path.open("r") as product_prices_file:
             product_market_extract = json.load(fp=product_prices_file)
-            new_product_market_extract = add_foil_articles_if_needed(
-                card_market_client=card_market_client,
-                stock_info=stock_info,
-                market_extract=product_market_extract,
-                max_results=50
-            )
-            if new_product_market_extract != product_market_extract:
-                save_market_extract(
-                    product_market_extract=new_product_market_extract,
-                    product_id=product_id,
-                    market_extract_path=market_extract_path
-                )
-
-            return product_market_extract
-
     except FileNotFoundError:
         return _get_market_extract_from_card_market()
+
+    new_product_market_extract = add_foil_articles_if_needed(
+        card_market_client=card_market_client,
+        stock_info=stock_info,
+        market_extract=product_market_extract,
+        config=config,
+        max_results=50
+    )
+    if new_product_market_extract != product_market_extract:
+        save_market_extract(
+            product_market_extract=new_product_market_extract,
+            product_id=product_id,
+            market_extract_path=market_extract_path
+        )
+
+    return product_market_extract

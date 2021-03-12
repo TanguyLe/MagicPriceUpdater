@@ -2,35 +2,35 @@ from pathlib import Path
 
 import typer
 
-from mpu.getstock import main as main_getstock
-from mpu.log_utils import set_log_conf
-from mpu.stats import get_stats_file_path
-from mpu.stats import main as main_stats
+from mpu.commands.getstock import main as main_getstock
+from mpu.utils.log_utils import set_log_conf
+from mpu.commands.stats import get_stats_file_path
+from mpu.commands.stats import main as main_stats
 from mpu.stock_io import get_stock_file_path
-from mpu.strategies_utils import CurrentPriceStrat, PriceUpdaterStrat
-from mpu.update import main as main_update
+from mpu.utils.strategies_utils import CurrentPriceStrat, PriceUpdaterStrat
+from mpu.commands.update import main as main_update
 
 app = typer.Typer()
 
 
-__version__ = "0.4.2"
+__version__ = "0.5.0"
 
 
 @app.command()
 def getstock(
         current_price_strategy: CurrentPriceStrat,
         price_update_strategy: PriceUpdaterStrat,
-        strategies_options_path: Path = typer.Option(
-            None,
-            "--strategies-options-path",
-            "-sop",
+        config_path: Path = typer.Option(
+            ...,
+            "--config-path",
+            "-cp",
             exists=True,
             file_okay=True,
             dir_okay=True,
             writable=True,
             readable=True,
             resolve_path=True,
-            help="Path of the file to configure the strategies, if not provided not parameters are used",
+            help="Path of the file to configure mpu",
         ),
         market_extract_path: Path = typer.Option(
             lambda: Path.cwd(),
@@ -69,7 +69,7 @@ def getstock(
     main_getstock(
         current_price_strategy=current_price_strategy.value,
         price_update_strategy=price_update_strategy.value,
-        strategies_options_path=strategies_options_path,
+        config_path=config_path,
         market_extract_path=market_extract_path,
         output_path=output_path,
         force_update=force_download,

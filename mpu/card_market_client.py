@@ -1,83 +1,38 @@
 import logging
-import os
 from typing import Optional
 
 import pandas as pd
-import requests
-from authlib.integrations.requests_client import OAuth1Auth
-from dicttoxml import dicttoxml
 from furl import furl
 
+from mpu.utils.oauth_client import OAuthAuthenticatedClient
 from mpu.stock_io import convert_base64_gzipped_string_to_dataframe
 
 logger = logging.getLogger(__name__)
 
-
-class ApiError(requests.HTTPError):
-    """Error when requesting the API"""
-
-    pass
-
-
-def dict_to_request_xml(my_dict: dict, item_name: str) -> str:
-    """Converts a dict to the xml for a request"""
-    xml = dicttoxml(
-        my_dict,
-        custom_root="request",
-        attr_type=False,
-        item_func=lambda x: item_name,
-    )
-    return xml.decode("utf-8")
+DEFAULT_LANGUAGE = "French"
+LANGUAGES = (
+    "English", "French", "German", "Spanish", "Italian", "Simplified Chinese",
+    "Japanese", "Portuguese", "Russian", "Korean", "Traditional Chinese"
+)
+CONDITIONS = ("MT", "NM", "EX", "GD", "LP", "PL", "PO")
 
 
-class OAuthAuthenticatedClient:
-    """Generic client to handle OAuth auth with fixed credentials from the env"""
+def get_language_id(language: str):
+    try:
+        return LANGUAGES.index(language) + 1
+    except ValueError:
+        logger.error("Unknown language \"%s\", using \"%s\"", language, DEFAULT_LANGUAGE)
+        return LANGUAGES.index(DEFAULT_LANGUAGE) + 1
 
-    def __init__(self) -> None:
-        logger.info(f"Setting up an OAuth client...")
-        self.auth = OAuth1Auth(
-            client_id=os.environ["CLIENT_KEY"],
-            client_secret=os.environ["CLIENT_SECRET"],
-            token=os.environ["ACCESS_TOKEN"],
-            token_secret=os.environ["ACCESS_SECRET"],
-        )
-        logger.info(f"Client initialized.")
 
-    def get_api_call(
-        self, url: furl, params: Optional[dict] = None
-    ) -> requests.Response:
-        url_to_modify = url.copy()
-        self.auth.realm = url_to_modify.remove(args=True, fragment=True)
-        logger.info(f"Get request to {url}")
+def get_conditions(min_condition: str):
+    try:
+        lowest_quality_index = CONDITIONS.index(min_condition)
+    except ValueError:
+        raise ValueError("Unknown condition \"%s\", use one of %s", min_condition, CONDITIONS)
 
-        response = requests.get(url=url, params=params, auth=self.auth)
-        try:
-            response.raise_for_status()
-        except requests.HTTPError as error:
-            err_msg = f"HTTP error on {url}: {error}"
-            logger.error(err_msg)
-            raise ApiError(err_msg) from error
-
-        return response
-
-    def put_api_call(self, data: dict, url: furl) -> requests.Response:
-        url_to_modify = url.copy()
-        self.auth.realm = url_to_modify.remove(args=True, fragment=True)
-        logger.info(f"Put request to {url}")
-
-        response = requests.put(
-            url=url,
-            data=dict_to_request_xml(my_dict=data, item_name="article"),
-            auth=self.auth,
-        )
-        try:
-            response.raise_for_status()
-        except requests.HTTPError as error:
-            err_msg = f"HTTP error on {url}: {error}"
-            logger.error(err_msg)
-            raise ApiError(err_msg) from error
-
-        return response
+    for condition in CONDITIONS[:lowest_quality_index]:
+        yield condition
 
 
 class CardMarketClient(OAuthAuthenticatedClient):
@@ -106,8 +61,9 @@ class CardMarketClient(OAuthAuthenticatedClient):
         product_id: int,
         min_condition: Optional[str] = None,
         max_results: int = 100,
+        language_id: Optional[int] = None,
         foil: Optional[bool] = None
-    ) -> dict:
+    ) -> list:
         call_url = self.CARD_MARKET_API_URL / f"/articles/{product_id}"
         if max_results is not None:
             call_url.add(args={"start": 0, "maxResults": max_results})
@@ -115,8 +71,15 @@ class CardMarketClient(OAuthAuthenticatedClient):
             call_url.add(args={"minCondition": min_condition})
         if foil is not None:
             call_url.add(args={"isFoil": foil})
+        if language_id is not None:
+            call_url.add(args={"idLanguage": language_id})
+
+        call_url.add(args={"isSigned": False, "isAltered": False})
 
         response = self.get_api_call(url=call_url)
+
+        if response.status_code == 204:
+            return []
 
         return response.json()["article"]
 
