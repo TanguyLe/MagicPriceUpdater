@@ -9,7 +9,7 @@ from mpu.stats_calculations import aggregate_data
 from mpu.stock_handling import prep_stock_df_for_stats
 from mpu.utils.pyopenxl_utils import format_and_save_df, EXCEL_ENGINE
 
-SHORT_STATS_SHEET_NAME = "short_stats"
+SHORT_STATS_SHEET_NAME = "Sheet1"
 LARGE_STATS_SHEET_NAME = "large_stats"
 GLOBAL = "Global"
 
