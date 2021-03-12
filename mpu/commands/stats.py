@@ -53,8 +53,7 @@ def main(stats_file_path: Path):
     logger.info("Starting stats...")
 
     client = CardMarketClient()
-    # stock_df = client.get_stock_df()
-    stock_df = pd.read_excel("stock.xlsx", engine=EXCEL_ENGINE)
+    stock_df = client.get_stock_df()
 
     logger.info("Loading the existing stats...")
     try:
