@@ -2,6 +2,8 @@ from typing import NamedTuple
 
 import pandas as pd
 
+from mpu.card_market_client import LANGUAGES
+
 
 class BasicStats(NamedTuple):
     total_current_price: float
@@ -63,3 +65,23 @@ def get_basic_stats(stock_df: pd.DataFrame) -> BasicStats:
         total_suggested_price=total_suggested_price,
         relative_diff=relative_diff,
     )
+
+
+def prep_stock_df_for_stats(stock_df: pd.DataFrame) -> pd.DataFrame:
+    # Stock df prep
+    stock_df["PriceCategories"] = pd.cut(
+        x=stock_df["Price"],
+        bins=[0, 0.3, 5, 30, 1000000],
+        labels=["Inf0.30", "0.30to5", "5to30", "Sup30"],
+        include_lowest=True,
+        right=False
+    )
+    stock_df["Foil?"] = stock_df["Foil?"].replace({'X': 'Y'}).fillna('N')
+    stock_df["Signed?"] = stock_df["Signed?"].replace({'X': 'Y'}).fillna('N')
+    stock_df["PriceXAmount"] = stock_df["Price"] * stock_df["Amount"]
+    stock_df["Language"] = stock_df["Language"].replace(
+        {(index + 1): name for index, name in enumerate(LANGUAGES)}
+    )
+    stock_df.loc[~stock_df["Language"].isin(["English", "French"]), "Language"] = "Other"
+
+    return stock_df
