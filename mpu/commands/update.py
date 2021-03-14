@@ -12,9 +12,10 @@ from mpu.stock_handling import MANUAL_PRICE_MARKER
 
 MAX_UPDATES_PER_REQUEST = 100
 
+logger = logging.getLogger(__name__)
+
 
 def main(stock_file_path: Path, yes_to_confirmation: bool):
-    logger = logging.getLogger(__name__)
     logger.info("Update starts...")
 
     stock_parent_path = stock_file_path.parent

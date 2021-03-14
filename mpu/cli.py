@@ -3,7 +3,6 @@ from pathlib import Path
 import typer
 
 from mpu.commands.getstock import main as main_getstock
-from mpu.utils.log_utils import set_log_conf
 from mpu.commands.stats import get_stats_file_path
 from mpu.commands.stats import main as main_stats
 from mpu.stock_io import get_stock_file_path
@@ -131,7 +130,7 @@ def version_callback(value: bool):
 def main_typer(
         version: bool = typer.Option(None, "-v", "--version", callback=version_callback, is_eager=True),
 ):
-    set_log_conf(log_path=Path.cwd())
+    pass
 
 
 def main():

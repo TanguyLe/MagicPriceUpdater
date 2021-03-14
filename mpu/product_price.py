@@ -9,6 +9,9 @@ from mpu.market_extract import get_single_product_market_extract
 from mpu.utils.strategies_utils import CurrentPriceComputer, SuitableExamplesShortage
 
 
+logger = logging.getLogger(__name__)
+
+
 def get_product_price(
         row: pd.Series,
         market_extract_path: Path,
@@ -17,8 +20,6 @@ def get_product_price(
         force_update: bool,
         config: dict
 ) -> float:
-    logger = logging.getLogger(__name__)
-
     stock_info: dict = row.to_dict()
     product_id = stock_info["idProduct"]
     _get_single_product_market_extract = partial(

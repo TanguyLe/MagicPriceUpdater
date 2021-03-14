@@ -9,6 +9,9 @@ from mpu.stats_calculations import aggregate_data
 from mpu.stock_handling import prep_stock_df_for_stats
 from mpu.utils.pyopenxl_utils import format_and_save_df, EXCEL_ENGINE
 
+logger = logging.getLogger(__name__)
+
+
 SHORT_STATS_SHEET_NAME = "Sheet1"
 LARGE_STATS_SHEET_NAME = "large_stats"
 GLOBAL = "Global"
@@ -49,7 +52,6 @@ def create_short_stats_df(current_timestamp: pd.DatetimeIndex, large_stats_df: p
 
 
 def main(stats_file_path: Path):
-    logger = logging.getLogger(__name__)
     logger.info("Starting stats...")
 
     client = CardMarketClient()
