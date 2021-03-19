@@ -3,20 +3,23 @@ from typing import Dict, Any
 import pandas as pd
 
 AFTER_AGG_NAMES = {
-    "Amount": "TNb",
-    "PriceXAmount": "TVal"
+    "Amount/sum": "TNb",
+    "Amount/median": "MedNb",
+    "PriceXAmount/sum": "TVal",
+    "Price/median": "MedVal",
 }
 AGGS = {
-    "Amount": "sum",
-    "PriceXAmount": "sum"
+    "Amount": ["sum", "median"],
+    "PriceXAmount": "sum",
+    "Price": "median"
 }
 
 
 def transformations(grp: pd.DataFrame, data: pd.DataFrame) -> Dict[str, pd.Series]:
     return {
-        "AvgVal": grp["PriceXAmount"] / grp["Amount"],
-        "%(Nb)": grp["Amount"] / data["Amount"].sum() * 100,
-        "%(Val)": grp["PriceXAmount"] / data["PriceXAmount"].sum() * 100
+        "AvgVal": grp["PriceXAmount/sum"] / grp["Amount/sum"],
+        "%(Nb)": grp["Amount/sum"] / data["Amount"].sum() * 100,
+        "%(Val)": grp["PriceXAmount/sum"] / data["PriceXAmount"].sum() * 100
     }
 
 
@@ -27,6 +30,12 @@ def aggregate_data(data: pd.DataFrame, index_name: str, group_name: str = None, 
         _stats_series = data
 
     _stats_series = _stats_series.agg(AGGS)
+
+    if group_name is None:
+        _stats_series = _stats_series.unstack().dropna()
+        _stats_series.index = [f"{label}/{agg}" for label, agg in _stats_series.index]
+    else:
+        _stats_series.columns = [f"{label}/{agg}" for label, agg in _stats_series.columns]
 
     for col_name, value in transformations(_stats_series, data).items():
         _stats_series[col_name] = value
