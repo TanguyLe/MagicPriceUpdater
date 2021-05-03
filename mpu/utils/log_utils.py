@@ -45,6 +45,11 @@ def set_log_conf() -> None:
                     "level": "INFO",
                     "propagate": False,
                 },
+                "dicttoxml": {
+                    "handlers": ["console", "file"],
+                    "level": "WARN",
+                    "propagate": False,
+                },
                 "__main__": {  # if __name__ == "__main__"
                     "handlers": ["console", "file"],
                     "level": "INFO",

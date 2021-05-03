@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 from typing import Optional
 
 import requests
@@ -73,6 +74,14 @@ class OAuthAuthenticatedClient:
         except requests.HTTPError as error:
             err_msg = f"HTTP error on {url}: {error}"
             logger.error(err_msg)
+
+            # Debug stuff added in a hurry
+            error_debug_path = (Path('.').resolve() / "put_api_error_details.xml")
+            logger.error("Writing request body to %s", error_debug_path)
+            error_debug_path.write_text(data=response.request.body)
+
+            logger.error("Response details: " + str(response.content))
+
             raise ApiError(err_msg) from error
 
         return response
