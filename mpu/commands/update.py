@@ -10,7 +10,7 @@ from mpu.utils.log_utils import DATE_FMT
 from mpu.utils.pyopenxl_utils import EXCEL_ENGINE
 from mpu.stock_handling import MANUAL_PRICE_MARKER
 
-MAX_UPDATES_PER_REQUEST = 100
+MAX_UPDATES_PER_REQUEST = 75
 
 logger = logging.getLogger(__name__)
 
