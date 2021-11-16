@@ -25,7 +25,7 @@ LARGE_STATS_COLUMNS_FORMAT = {
     ("Foil?", "N", None): {"color": "FFFF00"},
     ("Global", "Global", None): {"color": "FFFF00"},
     ("Language", "French", None): {"color": "FFFF00"},
-    ("PriceCategories", "Inf0.30", None): {"color": "FFFF00"},
+    ("PriceCategories", "10to20", None): {"color": "FFFF00"},
     ("PriceCategories", "0.30to2", None): {"color": "FFFF00"},
     ("Signed?", "N", None): {"color": "FFFF00"},
 }
