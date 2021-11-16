@@ -79,7 +79,9 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
     for i in range(nb_chunks):
         request_start = i * MAX_UPDATES_PER_REQUEST
         client.update_articles_prices(
-            articles_data=to_update_data[request_start: request_start + MAX_UPDATES_PER_REQUEST]
+            articles_data=to_update_data[
+                request_start : request_start + MAX_UPDATES_PER_REQUEST
+            ]
         )
     logger.info("Article prices updated.")
 

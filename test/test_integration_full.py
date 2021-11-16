@@ -38,7 +38,9 @@ def mock_settings_env_vars(mocker):
     )
 
 
-def test_integration_gestock(test_folder_cdir_path, test_stock_df, test_stock_output_df, mocker):
+def test_integration_gestock(
+    test_folder_cdir_path, test_stock_df, test_stock_output_df, mocker
+):
     mocker.patch(
         "mpu.card_market_client.convert_base64_gzipped_string_to_dataframe",
         return_value=test_stock_df.drop("ManualPrice", axis="columns"),

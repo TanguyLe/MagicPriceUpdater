@@ -76,7 +76,7 @@ class OAuthAuthenticatedClient:
             logger.error(err_msg)
 
             # Debug stuff added in a hurry
-            error_debug_path = (Path('.').resolve() / "put_api_error_details.xml")
+            error_debug_path = Path(".").resolve() / "put_api_error_details.xml"
             logger.error("Writing request body to %s", error_debug_path)
             error_debug_path.write_text(data=response.request.body)
 

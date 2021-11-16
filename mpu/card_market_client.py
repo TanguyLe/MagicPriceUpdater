@@ -11,8 +11,17 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_LANGUAGE = "French"
 LANGUAGES = (
-    "English", "French", "German", "Spanish", "Italian", "Simplified Chinese",
-    "Japanese", "Portuguese", "Russian", "Korean", "Traditional Chinese"
+    "English",
+    "French",
+    "German",
+    "Spanish",
+    "Italian",
+    "Simplified Chinese",
+    "Japanese",
+    "Portuguese",
+    "Russian",
+    "Korean",
+    "Traditional Chinese",
 )
 CONDITIONS = ("MT", "NM", "EX", "GD", "LP", "PL", "PO")
 
@@ -21,7 +30,7 @@ def get_language_id(language: str):
     try:
         return LANGUAGES.index(language) + 1
     except ValueError:
-        logger.error("Unknown language \"%s\", using \"%s\"", language, DEFAULT_LANGUAGE)
+        logger.error('Unknown language "%s", using "%s"', language, DEFAULT_LANGUAGE)
         return LANGUAGES.index(DEFAULT_LANGUAGE) + 1
 
 
@@ -29,7 +38,9 @@ def get_conditions(min_condition: str):
     try:
         lowest_quality_index = CONDITIONS.index(min_condition)
     except ValueError:
-        raise ValueError("Unknown condition \"%s\", use one of %s", min_condition, CONDITIONS)
+        raise ValueError(
+            'Unknown condition "%s", use one of %s', min_condition, CONDITIONS
+        )
 
     for condition in CONDITIONS[:lowest_quality_index]:
         yield condition
@@ -62,7 +73,7 @@ class CardMarketClient(OAuthAuthenticatedClient):
         min_condition: Optional[str] = None,
         max_results: int = 100,
         language_id: Optional[int] = None,
-        foil: Optional[bool] = None
+        foil: Optional[bool] = None,
     ) -> list:
         call_url = self.CARD_MARKET_API_URL / f"/articles/{product_id}"
         if max_results is not None:

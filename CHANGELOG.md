@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.0] - 2021-11-16
 - Minimum price option
+- Coloring of particular columns in the stats
 
 ## [0.5.4] - 2021-05-09
 - Reducing the number of updates per request to 75

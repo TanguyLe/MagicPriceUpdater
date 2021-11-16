@@ -36,7 +36,7 @@ def test_stock_df():
             "Currency Code",
             "ManualPrice",
             "SuggestedPrice",
-            "PriceApproval"
+            "PriceApproval",
         ],
     )
     df_stock["Price"] = pd.to_numeric(df_stock["Price"])

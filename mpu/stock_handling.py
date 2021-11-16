@@ -71,17 +71,19 @@ def prep_stock_df_for_stats(stock_df: pd.DataFrame) -> pd.DataFrame:
     # Stock df prep
     stock_df["PriceCategories"] = pd.cut(
         x=stock_df["Price"],
-        bins=[0, 0.3, 5, 30, 1000000],
-        labels=["Inf0.30", "0.30to5", "5to30", "Sup30"],
+        bins=[0, 0.3, 2, 10, 20, 30, 1000000],
+        labels=["Inf0.30", "0.30to2", "2to10", "10to20", "20to30", "Sup30"],
         include_lowest=True,
-        right=False
+        right=False,
     )
-    stock_df["Foil?"] = stock_df["Foil?"].replace({'X': 'Y'}).fillna('N')
-    stock_df["Signed?"] = stock_df["Signed?"].replace({'X': 'Y'}).fillna('N')
+    stock_df["Foil?"] = stock_df["Foil?"].replace({"X": "Y"}).fillna("N")
+    stock_df["Signed?"] = stock_df["Signed?"].replace({"X": "Y"}).fillna("N")
     stock_df["PriceXAmount"] = stock_df["Price"] * stock_df["Amount"]
     stock_df["Language"] = stock_df["Language"].replace(
         {(index + 1): name for index, name in enumerate(LANGUAGES)}
     )
-    stock_df.loc[~stock_df["Language"].isin(["English", "French"]), "Language"] = "Other"
+    stock_df.loc[
+        ~stock_df["Language"].isin(["English", "French"]), "Language"
+    ] = "Other"
 
     return stock_df

@@ -18,56 +18,56 @@ __version__ = "0.6.0"
 
 @app.command()
 def getstock(
-        current_price_strategy: CurrentPriceStrat,
-        price_update_strategy: PriceUpdaterStrat,
-        config_path: Path = typer.Option(
-            ...,
-            "--config-path",
-            "-cp",
-            exists=True,
-            file_okay=True,
-            dir_okay=True,
-            writable=True,
-            readable=True,
-            resolve_path=True,
-            help="Path of the file to configure mpu",
-        ),
-        market_extract_path: Path = typer.Option(
-            lambda: Path.cwd(),
-            "--market-extract-path",
-            "--mep",
-            exists=True,
-            file_okay=False,
-            dir_okay=True,
-            writable=True,
-            readable=True,
-            resolve_path=True,
-            help="Path where to save the market extract. Default is the current directory",
-        ),
-        output_path: Path = typer.Option(
-            lambda: Path.cwd(),
-            "--output-path",
-            "-op",
-            exists=True,
-            file_okay=False,
-            dir_okay=True,
-            writable=True,
-            readable=True,
-            resolve_path=True,
-            help="Path where to save the output. Default is the current directory",
-        ),
-        minimum_price: float = typer.Option(
-            0, "--minimum-price", "-m", help="Minimum price to keep for articles to keep."
-        ),
-        force_download: bool = typer.Option(
-            False, "--force-download", "-f", help="Force download the market extract."
-        ),
-        no_parallel_execution: bool = typer.Option(
-            False,
-            "--no-parallel-execution",
-            "-np",
-            help="Don't parallelize the calls to the card market API.",
-        ),
+    current_price_strategy: CurrentPriceStrat,
+    price_update_strategy: PriceUpdaterStrat,
+    config_path: Path = typer.Option(
+        ...,
+        "--config-path",
+        "-cp",
+        exists=True,
+        file_okay=True,
+        dir_okay=True,
+        writable=True,
+        readable=True,
+        resolve_path=True,
+        help="Path of the file to configure mpu",
+    ),
+    market_extract_path: Path = typer.Option(
+        lambda: Path.cwd(),
+        "--market-extract-path",
+        "--mep",
+        exists=True,
+        file_okay=False,
+        dir_okay=True,
+        writable=True,
+        readable=True,
+        resolve_path=True,
+        help="Path where to save the market extract. Default is the current directory",
+    ),
+    output_path: Path = typer.Option(
+        lambda: Path.cwd(),
+        "--output-path",
+        "-op",
+        exists=True,
+        file_okay=False,
+        dir_okay=True,
+        writable=True,
+        readable=True,
+        resolve_path=True,
+        help="Path where to save the output. Default is the current directory",
+    ),
+    minimum_price: float = typer.Option(
+        0, "--minimum-price", "-m", help="Minimum price to keep for articles to keep."
+    ),
+    force_download: bool = typer.Option(
+        False, "--force-download", "-f", help="Force download the market extract."
+    ),
+    no_parallel_execution: bool = typer.Option(
+        False,
+        "--no-parallel-execution",
+        "-np",
+        help="Don't parallelize the calls to the card market API.",
+    ),
 ):
     main_getstock(
         current_price_strategy=current_price_strategy.value,
@@ -83,24 +83,24 @@ def getstock(
 
 @app.command()
 def update(
-        stock_file_path: Path = typer.Option(
-            lambda: get_stock_file_path(folder_path=Path.cwd()),
-            "--stock-file-path",
-            "-sfp",
-            exists=True,
-            file_okay=True,
-            dir_okay=True,
-            writable=True,
-            readable=True,
-            resolve_path=True,
-            help="Path where to get the stock df. Default is the current directory's 'stock.csv'",
-        ),
-        yes_to_confirmation: bool = typer.Option(
-            False,
-            "--yes-to-confirmation",
-            "-y",
-            help="Prevents confirmation prompt from appearing.",
-        ),
+    stock_file_path: Path = typer.Option(
+        lambda: get_stock_file_path(folder_path=Path.cwd()),
+        "--stock-file-path",
+        "-sfp",
+        exists=True,
+        file_okay=True,
+        dir_okay=True,
+        writable=True,
+        readable=True,
+        resolve_path=True,
+        help="Path where to get the stock df. Default is the current directory's 'stock.csv'",
+    ),
+    yes_to_confirmation: bool = typer.Option(
+        False,
+        "--yes-to-confirmation",
+        "-y",
+        help="Prevents confirmation prompt from appearing.",
+    ),
 ) -> None:
     main_update(
         stock_file_path=stock_file_path, yes_to_confirmation=yes_to_confirmation
@@ -109,18 +109,18 @@ def update(
 
 @app.command()
 def stats(
-        stats_file_path: Path = typer.Option(
-            lambda: get_stats_file_path(folder_path=Path.cwd()),
-            "--stats-file-path",
-            "-sfp",
-            exists=False,
-            file_okay=True,
-            dir_okay=True,
-            writable=True,
-            readable=True,
-            resolve_path=True,
-            help="Path where to get the stats df. Default is the current directory's 'stockStats.csv'",
-        ),
+    stats_file_path: Path = typer.Option(
+        lambda: get_stats_file_path(folder_path=Path.cwd()),
+        "--stats-file-path",
+        "-sfp",
+        exists=False,
+        file_okay=True,
+        dir_okay=True,
+        writable=True,
+        readable=True,
+        resolve_path=True,
+        help="Path where to get the stats df. Default is the current directory's 'stockStats.csv'",
+    ),
 ) -> None:
     main_stats(stats_file_path=stats_file_path)
 
@@ -133,7 +133,9 @@ def version_callback(value: bool):
 
 @app.callback()
 def main_typer(
-        version: bool = typer.Option(None, "-v", "--version", callback=version_callback, is_eager=True),
+    version: bool = typer.Option(
+        None, "-v", "--version", callback=version_callback, is_eager=True
+    ),
 ):
     pass
 

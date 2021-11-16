@@ -19,6 +19,15 @@ LARGE_STATS_COLUMNS_FORMAT = {
     "AvgVal": {"width": 2.3},
     "%(Nb)": {"width": 2},
     "%(Val)": {"width": 2},
+    ("Condition", "EX", None): {"color": "FFFF00"},
+    ("Condition", "LP", None): {"color": "FFFF00"},
+    ("Condition", "PL", None): {"color": "FFFF00"},
+    ("Foil?", "N", None): {"color": "FFFF00"},
+    ("Global", "Global", None): {"color": "FFFF00"},
+    ("Language", "French", None): {"color": "FFFF00"},
+    ("PriceCategories", "Inf0.30", None): {"color": "FFFF00"},
+    ("PriceCategories", "0.30to2", None): {"color": "FFFF00"},
+    ("Signed?", "N", None): {"color": "FFFF00"},
 }
 
 STOCK_COLUMNS_FORMAT = {

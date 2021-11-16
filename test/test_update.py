@@ -33,7 +33,9 @@ def save_stock_file(test_folder_cdir_path):
         writer = pd.ExcelWriter(path=str(new_stock_file_path), engine=EXCEL_ENGINE)
         stock_df.to_excel(excel_writer=writer, index=False, engine=EXCEL_ENGINE)
 
-        format_and_save_df(df=stock_df, writer=writer, format_config=STOCK_COLUMNS_FORMAT)
+        format_and_save_df(
+            df=stock_df, writer=writer, format_config=STOCK_COLUMNS_FORMAT
+        )
 
         return new_stock_file_path
 
@@ -52,29 +54,29 @@ def test_integration_update(mocker, save_stock_file, test_stock_df):
             json={"stock": "placeholder"},
         )
 
-        result = runner.invoke(
-            app, ["update"]
-        )
+        result = runner.invoke(app, ["update"])
 
     assert result.exit_code == 0
     assert len(r_mock.request_history) == 1
     assert r_mock.request_history[0].text == (
-            '<?xml version="1.0" encoding="UTF-8" ?>' +
-            ('   <request>'
-             '       <article>'
-             '           <idArticle>1038903060</idArticle>'
-             '           <comments>&lt;M&gt;</comments>'
-             '           <count>1</count>'
-             '           <price>12.0</price>'
-             '       </article>'
-             '       <article>'
-             '          <idArticle>969967810</idArticle>'
-             '          <comments></comments>'
-             '          <count>1</count>'
-             '          <price>5</price>'
-             '      </article>'
-             '  </request>'
-             ).replace(' ', ''))
+        '<?xml version="1.0" encoding="UTF-8" ?>'
+        + (
+            "   <request>"
+            "       <article>"
+            "           <idArticle>1038903060</idArticle>"
+            "           <comments>&lt;M&gt;</comments>"
+            "           <count>1</count>"
+            "           <price>12.0</price>"
+            "       </article>"
+            "       <article>"
+            "          <idArticle>969967810</idArticle>"
+            "          <comments></comments>"
+            "          <count>1</count>"
+            "          <price>5</price>"
+            "      </article>"
+            "  </request>"
+        ).replace(" ", "")
+    )
 
 
 def test_integration_update_multiple_requests(mocker, test_stock_df, save_stock_file):
@@ -91,43 +93,50 @@ def test_integration_update_multiple_requests(mocker, test_stock_df, save_stock_
             json={"stock": "placeholder"},
         )
 
-        result = runner.invoke(
-            app, ["update"]
-        )
+        result = runner.invoke(app, ["update"])
 
     assert result.exit_code == 0
     assert len(r_mock.request_history) == 11
     assert r_mock.request_history[0].text == (
-            '<?xml version="1.0" encoding="UTF-8" ?>' +
-            ('   <request>' +
-             ('       <article>'
-              '           <idArticle>1038903060</idArticle>'
-              '           <comments>&lt;M&gt;</comments>'
-              '           <count>1</count>'
-              '           <price>12.0</price>'
-              '       </article>'
-              '       <article>'
-              '       <idArticle>969967810</idArticle>'
-              '       <comments></comments>'
-              '       <count>1</count>'
-              '       <price>5</price>'
-              '   </article>') * 50 +
-             '</request>'
-             ).replace(' ', ''))
+        '<?xml version="1.0" encoding="UTF-8" ?>'
+        + (
+            "   <request>"
+            + (
+                "       <article>"
+                "           <idArticle>1038903060</idArticle>"
+                "           <comments>&lt;M&gt;</comments>"
+                "           <count>1</count>"
+                "           <price>12.0</price>"
+                "       </article>"
+                "       <article>"
+                "       <idArticle>969967810</idArticle>"
+                "       <comments></comments>"
+                "       <count>1</count>"
+                "       <price>5</price>"
+                "   </article>"
+            )
+            * 50
+            + "</request>"
+        ).replace(" ", "")
+    )
     assert r_mock.request_history[-1].text == (
-            '<?xml version="1.0" encoding="UTF-8" ?>' +
-            ('   <request>' +
-             ('       <article>'
-              '           <idArticle>1038903060</idArticle>'
-              '           <comments>&lt;M&gt;</comments>'
-              '           <count>1</count>'
-              '           <price>12.0</price>'
-              '       </article>'
-              '       <article>'
-              '       <idArticle>969967810</idArticle>'
-              '       <comments></comments>'
-              '       <count>1</count>'
-              '       <price>5</price>'
-              '   </article>') +
-             '</request>'
-             ).replace(' ', ''))
+        '<?xml version="1.0" encoding="UTF-8" ?>'
+        + (
+            "   <request>"
+            + (
+                "       <article>"
+                "           <idArticle>1038903060</idArticle>"
+                "           <comments>&lt;M&gt;</comments>"
+                "           <count>1</count>"
+                "           <price>12.0</price>"
+                "       </article>"
+                "       <article>"
+                "       <idArticle>969967810</idArticle>"
+                "       <comments></comments>"
+                "       <count>1</count>"
+                "       <price>5</price>"
+                "   </article>"
+            )
+            + "</request>"
+        ).replace(" ", "")
+    )

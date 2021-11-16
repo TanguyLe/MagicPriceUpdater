@@ -13,12 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 def get_product_price(
-        row: pd.Series,
-        market_extract_path: Path,
-        current_price_computer: CurrentPriceComputer,
-        card_market_client: CardMarketClient,
-        force_update: bool,
-        config: dict
+    row: pd.Series,
+    market_extract_path: Path,
+    current_price_computer: CurrentPriceComputer,
+    card_market_client: CardMarketClient,
+    force_update: bool,
+    config: dict,
 ) -> float:
     stock_info: dict = row.to_dict()
     product_id = stock_info["idProduct"]
@@ -28,7 +28,7 @@ def get_product_price(
         market_extract_path=market_extract_path,
         card_market_client=card_market_client,
         force_update=force_update,
-        config=config
+        config=config,
     )
 
     try:
