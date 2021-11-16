@@ -2,6 +2,7 @@ import logging
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
+from typing import Optional
 
 from mpu.card_market_client import CardMarketClient
 from mpu.config_handling import load_config_file
@@ -24,6 +25,7 @@ def main(
     config_path: Path,
     market_extract_path: Path,
     output_path: Path,
+    minimum_price: float,
     force_update: bool,
     parallel_execution: bool,
 ):
@@ -67,6 +69,10 @@ def main(
     )
 
     stock_df = client.get_stock_df()
+    if minimum_price:
+        stock_df = stock_df[stock_df["Price"] >= minimum_price]
+        logger.info(f"Removed articles whose price is under {minimum_price}.")
+
     stock_df_for_strategies = stock_df.fillna("")
     logger.info("Computing the new prices...")
     # Put the product prices in the df

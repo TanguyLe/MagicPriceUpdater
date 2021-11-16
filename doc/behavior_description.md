@@ -7,7 +7,8 @@ MagicPriceUpdate: mpu
 
 Usage:
   mpu getstock <current-price-strat> <price-update-strat> [--market-extract-path|-mep=<mep>, 
-    --config-path|cp=<cp> --output-path|op=<op>, --force-download|-f, --parallel-execution|-p]
+    --config-path|cp=<cp> --output-path|op=<op>, 
+    --force-download|-f, --parallel-execution|-p, --minimum-price|m=<mpi>]
   mpu update [--stock-file-path|sfp=<sfp> --yes-to-confirmation|-y]
   mpu stats [--stats-file-path|sfp=<sfp>
   mpu (-h | --help)
@@ -17,7 +18,9 @@ Options:
   -h --help     Show this screen.
   --version     Show version.
   --force-download|-f Force the re-download of the market extract regardless if it exists already.
+  --parallel-execution|-p Whether to force download the stock or not.
   --market-extract-path|-mep=<mep>  Market extract folder path [default: current-directory].
+  --minimum-price|m=<mpi> The minimum price of an artical to be included in the the extract [default: 0].
   --config-path|-cp=<cp> Path to the config. It is mandatory.
   --output-path|-op=<op> Output folder path [default: current-directory].
   --stock-file-path|-sfp=<sfp> Input stock file path [default: current-directory/stock.csv].

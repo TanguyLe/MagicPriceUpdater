@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 
 import typer
 
@@ -12,7 +13,7 @@ from mpu.commands.update import main as main_update
 app = typer.Typer()
 
 
-__version__ = "0.5.4"
+__version__ = "0.6.0"
 
 
 @app.command()
@@ -55,6 +56,9 @@ def getstock(
             resolve_path=True,
             help="Path where to save the output. Default is the current directory",
         ),
+        minimum_price: float = typer.Option(
+            0, "--minimum-price", "-m", help="Minimum price to keep for articles to keep."
+        ),
         force_download: bool = typer.Option(
             False, "--force-download", "-f", help="Force download the market extract."
         ),
@@ -71,6 +75,7 @@ def getstock(
         config_path=config_path,
         market_extract_path=market_extract_path,
         output_path=output_path,
+        minimum_price=minimum_price,
         force_update=force_download,
         parallel_execution=not no_parallel_execution,
     )
