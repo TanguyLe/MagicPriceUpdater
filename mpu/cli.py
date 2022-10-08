@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -13,7 +12,7 @@ from mpu.commands.update import main as main_update
 app = typer.Typer()
 
 
-__version__ = "0.6.1"
+__version__ = "0.6.2"
 
 
 @app.command()

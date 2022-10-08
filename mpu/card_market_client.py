@@ -67,6 +67,12 @@ class CardMarketClient(OAuthAuthenticatedClient):
 
         return response.json()
 
+    def get_article_info(self, article_id: int) -> dict:
+        call_url = self.CARD_MARKET_API_URL / f"/stock/article/{article_id}"
+        response = self.get_api_call(url=call_url)
+
+        return response.json()
+
     def get_product_articles(
         self,
         product_id: int,
