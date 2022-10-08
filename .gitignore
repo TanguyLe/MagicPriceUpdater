@@ -148,3 +148,5 @@ explo.ipynb
 
 *.log*
 *~lock*
+
+.local

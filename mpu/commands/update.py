@@ -24,7 +24,7 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
         / f"notUpdatedStock-{pd.Timestamp('now').strftime(DATE_FMT)}.xlsx"
     )
 
-    logger.info("Loading stock excel...")
+    logger.info(f"Loading stock excel from {stock_file_path}...")
     stock_df = pd.read_excel(io=stock_file_path, engine=EXCEL_ENGINE)
     stock_df = stock_df.fillna("")
     logger.info("Stock loaded.")
@@ -78,11 +78,12 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
     nb_chunks = math.ceil(len(to_update_data) / MAX_UPDATES_PER_REQUEST)
     for i in range(nb_chunks):
         request_start = i * MAX_UPDATES_PER_REQUEST
-        client.update_articles_prices(
+        request_response = client.update_articles_prices(
             articles_data=to_update_data[
                 request_start : request_start + MAX_UPDATES_PER_REQUEST
             ]
         )
+        logger.info(f"The non-update articles are: {request_response['notUpdatedArticles']}")
     logger.info("Article prices updated.")
 
     logger.info("Saving the not updated articles...")
