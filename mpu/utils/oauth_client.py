@@ -13,8 +13,25 @@ logger = logging.getLogger(__name__)
 
 class ApiError(requests.HTTPError):
     """Error when requesting the API"""
+    @classmethod
+    def from_card_market_error(cls, error: requests.HTTPError) -> "ApiError":
+        return cls(
+            message=f"HTTP error on {error.request.url}: {error} - {error.response.content}",
+            code=int(error.response.status_code),
+            limit_count=int(error.response.headers["x-request-limit-count"]),
+            limit_max=int(error.response.headers["x-request-limit-max"])
+        )
 
-    pass
+    def __init__(self, message: str, code: int, limit_count: int, limit_max: int) -> None:
+        self.code = code
+        self.limit_count = limit_count
+        self.limit_max = limit_max
+
+        super().__init__(message)
+
+    @property
+    def exceeded_request_limit(self):
+        return self.code == 429 and self.limit_count >= self.limit_max
 
 
 def dict_to_request_xml(my_dict: dict, item_name: str) -> str:
@@ -51,9 +68,9 @@ class OAuthAuthenticatedClient:
         try:
             response.raise_for_status()
         except requests.HTTPError as error:
-            err_msg = f"HTTP error on {url}: {error}"
-            logger.error(err_msg)
-            raise ApiError(err_msg) from error
+            new_error = ApiError.from_card_market_error(error)
+            logger.error(str(new_error))
+            raise new_error from error
         finally:
             logger.info(f"{response.status_code}: get request to {url}")
 
@@ -72,16 +89,14 @@ class OAuthAuthenticatedClient:
         try:
             response.raise_for_status()
         except requests.HTTPError as error:
-            err_msg = f"HTTP error on {url}: {error}"
-            logger.error(err_msg)
+            new_error = ApiError.from_card_market_error(error)
+            logger.error(str(new_error))
 
             # Debug stuff added in a hurry
             error_debug_path = Path(".").resolve() / "put_api_error_details.xml"
             logger.error("Writing request body to %s", error_debug_path)
             error_debug_path.write_text(data=response.request.body)
 
-            logger.error("Response details: " + str(response.content))
-
-            raise ApiError(err_msg) from error
+            raise new_error from error
 
         return response

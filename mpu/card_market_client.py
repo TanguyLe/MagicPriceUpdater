@@ -4,7 +4,7 @@ from typing import Optional
 import pandas as pd
 from furl import furl
 
-from mpu.utils.oauth_client import OAuthAuthenticatedClient
+from mpu.utils.oauth_client import OAuthAuthenticatedClient, ApiError
 from mpu.stock_io import convert_base64_gzipped_string_to_dataframe
 
 logger = logging.getLogger(__name__)
@@ -24,6 +24,10 @@ LANGUAGES = (
     "Traditional Chinese",
 )
 CONDITIONS = ("MT", "NM", "EX", "GD", "LP", "PL", "PO")
+
+
+class TooManyRequestsError(Exception):
+    pass
 
 
 def get_language_id(language: str):
@@ -93,7 +97,13 @@ class CardMarketClient(OAuthAuthenticatedClient):
 
         call_url.add(args={"isSigned": False, "isAltered": False})
 
-        response = self.get_api_call(url=call_url)
+        try:
+            response = self.get_api_call(url=call_url)
+        except ApiError as error:
+            if error.exceeded_request_limit:
+                raise TooManyRequestsError(str(error)) from error
+
+            raise
 
         if response.status_code == 204:
             return []
