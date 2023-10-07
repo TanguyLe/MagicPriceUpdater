@@ -3,8 +3,9 @@ from typing import Optional
 
 import pandas as pd
 from furl import furl
+import requests
 
-from mpu.utils.oauth_client import OAuthAuthenticatedClient, ApiError
+from mpu.utils.oauth_client import OAuthAuthenticatedClient
 from mpu.stock_io import convert_base64_gzipped_string_to_dataframe
 
 logger = logging.getLogger(__name__)
@@ -26,8 +27,32 @@ LANGUAGES = (
 CONDITIONS = ("MT", "NM", "EX", "GD", "LP", "PL", "PO")
 
 
-class TooManyRequestsError(Exception):
-    pass
+class CardMarketApiError(requests.HTTPError):
+    """Error when requesting the API"""
+    @classmethod
+    def from_card_market_error(cls, error: requests.HTTPError) -> "CardMarketApiError":
+        limit_count = error.response.headers.get("x-request-limit-count")
+        limit_max = error.response.headers.get("x-request-limit-max")
+        return cls(
+            message=f"HTTP error on {error.request.url}: {error} - {error.response.content}",
+            code=int(error.response.status_code),
+            limit_count=int(limit_count) if limit_count is not None else None,
+            limit_max=int(limit_max) if limit_max is not None else None
+        )
+
+    def __init__(self, message: str, code: int, limit_count: Optional[int], limit_max: Optional[int]) -> None:
+        self.code = code
+        self.limit_count = limit_count
+        self.limit_max = limit_max
+
+        super().__init__(message)
+
+    @property
+    def exceeded_request_limit(self):
+        if self.limit_count is None or self.limit_max is None:
+            return False
+
+        return self.code == 429 and self.limit_count >= self.limit_max
 
 
 def get_language_id(language: str):
@@ -58,6 +83,8 @@ class CardMarketClient(OAuthAuthenticatedClient):
 
         response = self.get_api_call(url=self.CARD_MARKET_API_URL / "stock/file")
         stock_string = response.json()["stock"]
+
+        logger.info(f"Response headers {response.headers}.")
 
         result = convert_base64_gzipped_string_to_dataframe(
             b64_zipped_string=stock_string
@@ -99,11 +126,8 @@ class CardMarketClient(OAuthAuthenticatedClient):
 
         try:
             response = self.get_api_call(url=call_url)
-        except ApiError as error:
-            if error.exceeded_request_limit:
-                raise TooManyRequestsError(str(error)) from error
-
-            raise
+        except requests.HTTPError as error:
+            raise CardMarketApiError.from_card_market_error(error=error)
 
         if response.status_code == 204:
             return []

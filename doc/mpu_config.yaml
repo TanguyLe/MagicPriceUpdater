@@ -6,11 +6,11 @@ request_options:
     - CARD
   min_condition: EX
   max_results:
-    English: 200
+    English: 100
     French: 20
-    German: 200
+    German: 100
   # For the max results not specified by language above
-  default_max_results: 200
+  default_max_results: 100
   one_request_per_condition: false
 
 strategies_options: {}
