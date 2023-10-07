@@ -5,13 +5,16 @@ from pathlib import Path
 
 import pandas as pd
 
-from mpu.excel_formats import STOCK_COLUMNS_FORMAT
+from mpu.excel_formats import STOCK_WITH_NEW_PRICE_COLUMNS_FORMAT, STOCK_COLUMNS_FORMAT
 from mpu.utils.pyopenxl_utils import format_and_save_df, EXCEL_ENGINE
 
 
-def get_stock_file_path(folder_path: Path) -> Path:
+def get_stock_file_path(folder_path: Path, csv: bool = False) -> Path:
     """Constructs the stock file path from a folder path"""
-    return folder_path / "stock.xlsx"
+    if csv:
+        return folder_path / "stock.csv"
+    else:
+        return folder_path / "stock.xlsx"
 
 
 def convert_base64_gzipped_string_to_dataframe(b64_zipped_string: str) -> pd.DataFrame:
@@ -22,8 +25,10 @@ def convert_base64_gzipped_string_to_dataframe(b64_zipped_string: str) -> pd.Dat
     return pd.read_csv(io.BytesIO(csv_string), sep=";")
 
 
-def save_stock_df_as_excel_formatted_file(df: pd.DataFrame, file_path: Path) -> None:
+def save_stock_df_as_excel_formatted_file(df: pd.DataFrame, file_path: Path, new_price: bool = False) -> None:
+    cols_format = STOCK_WITH_NEW_PRICE_COLUMNS_FORMAT if new_price else STOCK_COLUMNS_FORMAT
+
     writer = pd.ExcelWriter(path=str(file_path), engine=EXCEL_ENGINE)
     df.to_excel(excel_writer=writer, index=False, engine=EXCEL_ENGINE)
 
-    format_and_save_df(df=df, writer=writer, format_config=STOCK_COLUMNS_FORMAT)
+    format_and_save_df(df=df, writer=writer, format_config=cols_format)

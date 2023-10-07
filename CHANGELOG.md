@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Stop requesting when reaching the request limit
+- Splitting the getstock in three commands
+- Printing the request limits when doing a getstock
 
 ## [0.6.2] - 2022-10-05
 - Add the path of the stock file to the logs of update
