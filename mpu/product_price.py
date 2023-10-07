@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from mpu.card_market_client import CardMarketClient
+from mpu.card_market_client import CardMarketClient, TooManyRequestsError
 from mpu.market_extract import get_single_product_market_extract
 from mpu.utils.strategies_utils import CurrentPriceComputer, SuitableExamplesShortage
 
@@ -33,6 +33,14 @@ def get_product_price(
 
     try:
         market_extract = _get_single_product_market_extract()
+    except TooManyRequestsError as error:
+        logger.error(
+            f"Error when trying to extract data for product {product_id}: {error.__repr__()}"
+        )
+        logger.error(
+            "Rate limit exceeded for today, stopping"
+        )
+        raise
     except Exception as error:
         logger.error(
             f"Error when trying to extract data for product {product_id}: {error.__repr__()}"
