@@ -84,7 +84,9 @@ class CardMarketClient(OAuthAuthenticatedClient):
         response = self.get_api_call(url=self.CARD_MARKET_API_URL / "stock/file")
         stock_string = response.json()["stock"]
 
-        logger.info(f"Response headers {response.headers}.")
+        limit_count = response.headers.get("x-request-limit-count")
+        limit_max = response.headers.get("x-request-limit-max")
+        logger.info(f"Limit: {limit_count}/{limit_max}.")
 
         result = convert_base64_gzipped_string_to_dataframe(
             b64_zipped_string=stock_string
