@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update to python3.11
 - Many packages updates to the latest versions
 - Prettify the limit counts display
-- Format the files
+- Format the files using isort and black
 
 ## [0.7.0] - 2023-10-07
 - Stop requesting when reaching the request limit

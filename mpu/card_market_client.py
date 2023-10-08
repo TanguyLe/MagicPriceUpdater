@@ -2,11 +2,11 @@ import logging
 from typing import Optional
 
 import pandas as pd
-from furl import furl
 import requests
+from furl import furl
 
-from mpu.utils.oauth_client import OAuthAuthenticatedClient
 from mpu.stock_io import convert_base64_gzipped_string_to_dataframe
+from mpu.utils.oauth_client import OAuthAuthenticatedClient
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +29,7 @@ CONDITIONS = ("MT", "NM", "EX", "GD", "LP", "PL", "PO")
 
 class CardMarketApiError(requests.HTTPError):
     """Error when requesting the API"""
+
     @classmethod
     def from_card_market_error(cls, error: requests.HTTPError) -> "CardMarketApiError":
         limit_count = error.response.headers.get("x-request-limit-count")
@@ -37,10 +38,16 @@ class CardMarketApiError(requests.HTTPError):
             message=f"HTTP error on {error.request.url}: {error} - {error.response.content}",
             code=int(error.response.status_code),
             limit_count=int(limit_count) if limit_count is not None else None,
-            limit_max=int(limit_max) if limit_max is not None else None
+            limit_max=int(limit_max) if limit_max is not None else None,
         )
 
-    def __init__(self, message: str, code: int, limit_count: Optional[int], limit_max: Optional[int]) -> None:
+    def __init__(
+        self,
+        message: str,
+        code: int,
+        limit_count: Optional[int],
+        limit_max: Optional[int],
+    ) -> None:
         self.code = code
         self.limit_count = limit_count
         self.limit_max = limit_max

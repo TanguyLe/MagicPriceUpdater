@@ -5,7 +5,8 @@ from functools import partial
 from pathlib import Path
 from typing import Optional
 
-from mpu.card_market_client import CardMarketClient, get_language_id, get_conditions
+from mpu.card_market_client import (CardMarketClient, get_conditions,
+                                    get_language_id)
 
 logger = logging.getLogger(__name__)
 

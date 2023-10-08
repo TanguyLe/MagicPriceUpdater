@@ -1,9 +1,8 @@
-from typing import List, Union, Tuple, Optional
+from typing import List, Optional, Tuple, Union
 
 import pandas as pd
 from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
-
 
 EXCEL_ENGINE = "openpyxl"
 

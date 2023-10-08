@@ -5,8 +5,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from mpu.excel_formats import STOCK_WITH_NEW_PRICE_COLUMNS_FORMAT, STOCK_COLUMNS_FORMAT
-from mpu.utils.pyopenxl_utils import format_and_save_df, EXCEL_ENGINE
+from mpu.excel_formats import (STOCK_COLUMNS_FORMAT,
+                               STOCK_WITH_NEW_PRICE_COLUMNS_FORMAT)
+from mpu.utils.pyopenxl_utils import EXCEL_ENGINE, format_and_save_df
 
 
 def get_stock_file_path(folder_path: Path, csv: bool = False) -> Path:
@@ -25,8 +26,12 @@ def convert_base64_gzipped_string_to_dataframe(b64_zipped_string: str) -> pd.Dat
     return pd.read_csv(io.BytesIO(csv_string), sep=";")
 
 
-def save_stock_df_as_excel_formatted_file(df: pd.DataFrame, file_path: Path, new_price: bool = False) -> None:
-    cols_format = STOCK_WITH_NEW_PRICE_COLUMNS_FORMAT if new_price else STOCK_COLUMNS_FORMAT
+def save_stock_df_as_excel_formatted_file(
+    df: pd.DataFrame, file_path: Path, new_price: bool = False
+) -> None:
+    cols_format = (
+        STOCK_WITH_NEW_PRICE_COLUMNS_FORMAT if new_price else STOCK_COLUMNS_FORMAT
+    )
 
     writer = pd.ExcelWriter(path=str(file_path), engine=EXCEL_ENGINE)
     df.to_excel(excel_writer=writer, index=False, engine=EXCEL_ENGINE)

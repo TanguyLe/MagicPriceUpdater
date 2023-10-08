@@ -48,5 +48,5 @@ STOCK_WITH_NEW_PRICE_COLUMNS_FORMAT = {
     **{
         "SuggestedPrice": {"color": "949494E8"},
         "PriceApproval": {"color": "FFF0F8FF"},
-    }
+    },
 }

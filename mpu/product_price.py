@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from mpu.card_market_client import CardMarketClient, CardMarketApiError
+from mpu.card_market_client import CardMarketApiError, CardMarketClient
 from mpu.market_extract import get_single_product_market_extract
-from mpu.utils.strategies_utils import CurrentPriceComputer, SuitableExamplesShortage
-
+from mpu.utils.strategies_utils import (CurrentPriceComputer,
+                                        SuitableExamplesShortage)
 
 logger = logging.getLogger(__name__)
 
@@ -38,9 +38,7 @@ def get_product_price(
             f"Error when trying to extract data for product {product_id}: {error.__repr__()}"
         )
         if error.exceeded_request_limit:
-            logger.error(
-                "Rate limit exceeded for today, stopping"
-            )
+            logger.error("Rate limit exceeded for today, stopping")
             raise
     except Exception as error:
         logger.error(

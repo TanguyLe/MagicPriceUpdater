@@ -2,23 +2,18 @@ import logging
 from functools import partial
 from pathlib import Path
 
+import pandas as pd
+
 from mpu.card_market_client import CardMarketClient
 from mpu.config_handling import load_config_file
-from mpu.market_extract import (
-    get_market_extract_path,
-)
+from mpu.market_extract import get_market_extract_path
 from mpu.product_price import get_product_price
 from mpu.stock_handling import get_basic_stats, prepare_stock_df
-from mpu.stock_io import get_stock_file_path, save_stock_df_as_excel_formatted_file
-from mpu.utils.strategies_utils import (
-    CurrentPriceComputer,
-    PriceUpdater,
-    get_strategies_options,
-)
+from mpu.stock_io import (get_stock_file_path,
+                          save_stock_df_as_excel_formatted_file)
 from mpu.utils.pyopenxl_utils import EXCEL_ENGINE
-
-
-import pandas as pd
+from mpu.utils.strategies_utils import (CurrentPriceComputer, PriceUpdater,
+                                        get_strategies_options)
 
 
 def main(
@@ -100,7 +95,9 @@ def main(
 
     # Saves the result
     logger.info("Saving the stock...")
-    save_stock_df_as_excel_formatted_file(file_path=stock_output_path, df=stock_df, new_price=True)
+    save_stock_df_as_excel_formatted_file(
+        file_path=stock_output_path, df=stock_df, new_price=True
+    )
     logger.info(f"Stock saved at {stock_output_path}.")
 
     # A few stats already

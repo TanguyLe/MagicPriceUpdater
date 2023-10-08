@@ -6,9 +6,9 @@ import pandas as pd
 import typer
 
 from mpu.card_market_client import CardMarketClient
+from mpu.stock_handling import MANUAL_PRICE_MARKER
 from mpu.utils.log_utils import DATE_FMT
 from mpu.utils.pyopenxl_utils import EXCEL_ENGINE
-from mpu.stock_handling import MANUAL_PRICE_MARKER
 
 MAX_UPDATES_PER_REQUEST = 75
 
@@ -83,7 +83,9 @@ def main(stock_file_path: Path, yes_to_confirmation: bool):
                 request_start : request_start + MAX_UPDATES_PER_REQUEST
             ]
         )
-        logger.info(f"The non-update articles are: {request_response['notUpdatedArticles']}")
+        logger.info(
+            f"The non-update articles are: {request_response['notUpdatedArticles']}"
+        )
     logger.info("Article prices updated.")
 
     logger.info("Saving the not updated articles...")

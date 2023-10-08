@@ -3,16 +3,14 @@ from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
 
+import pandas as pd
+
 from mpu.card_market_client import CardMarketClient
 from mpu.config_handling import load_config_file
-from mpu.market_extract import (
-    get_market_extract_path,
-)
-from mpu.utils.pyopenxl_utils import EXCEL_ENGINE
+from mpu.market_extract import get_market_extract_path
 from mpu.product_price import get_single_product_market_extract
 from mpu.stock_io import get_stock_file_path
-
-import pandas as pd
+from mpu.utils.pyopenxl_utils import EXCEL_ENGINE
 
 
 def main(
@@ -66,7 +64,9 @@ def main(
     try:
         if parallel_execution:
             rows = [row for _, row in stock_df_for_strategies.iterrows()]
-            executor.map(get_single_product_market_extract_with_args, rows, chunksize=10)
+            executor.map(
+                get_single_product_market_extract_with_args, rows, chunksize=10
+            )
             executor.shutdown()
         else:
             stock_df_for_strategies.apply(

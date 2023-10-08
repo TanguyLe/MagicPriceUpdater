@@ -4,17 +4,13 @@ from pathlib import Path
 import pandas as pd
 
 from mpu.card_market_client import CardMarketClient
-from mpu.excel_formats import (
-    SHORT_STATS_COLUMNS_FORMAT,
-    LARGE_STATS_COLUMNS_FORMAT,
-    INDEX_NAME,
-)
+from mpu.excel_formats import (INDEX_NAME, LARGE_STATS_COLUMNS_FORMAT,
+                               SHORT_STATS_COLUMNS_FORMAT)
 from mpu.stats_calculations import aggregate_data
 from mpu.stock_handling import prep_stock_df_for_stats
-from mpu.utils.pyopenxl_utils import format_and_save_df, EXCEL_ENGINE
+from mpu.utils.pyopenxl_utils import EXCEL_ENGINE, format_and_save_df
 
 logger = logging.getLogger(__name__)
-
 
 SHORT_STATS_SHEET_NAME = "Sheet1"
 LARGE_STATS_SHEET_NAME = "large_stats"
