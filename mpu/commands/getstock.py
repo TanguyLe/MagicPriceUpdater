@@ -2,7 +2,6 @@ import logging
 from pathlib import Path
 
 from mpu.card_market_client import CardMarketClient
-
 from mpu.stock_io import get_stock_file_path
 
 

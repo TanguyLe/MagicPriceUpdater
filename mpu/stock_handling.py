@@ -15,7 +15,7 @@ MANUAL_PRICE_MARKER = "<M>"
 
 
 def prepare_stock_df(_stock_df: pd.DataFrame) -> pd.DataFrame:
-    """Prepares the columns 'PriceApproval', 'Comments', 'RelativePriceDiff' and sorts the stock_df """
+    """Prepares the columns 'PriceApproval', 'Comments', 'RelativePriceDiff' and sorts the stock_df"""
     _stock_df = _stock_df.copy()
     _stock_df["PriceApproval"] = 1
     _stock_df["Comments"] = _stock_df["Comments"].fillna("")
@@ -76,8 +76,12 @@ def prep_stock_df_for_stats(stock_df: pd.DataFrame) -> pd.DataFrame:
         include_lowest=True,
         right=False,
     )
-    stock_df["Foil?"] = stock_df["Foil?"].replace({"X": "Y", "1.0": "Y", 1.0: "Y"}).fillna("N")
-    stock_df["Signed?"] = stock_df["Signed?"].replace({"X": "Y", "1.0": "Y", 1.0: "Y"}).fillna("N")
+    stock_df["Foil?"] = (
+        stock_df["Foil?"].replace({"X": "Y", "1.0": "Y", 1.0: "Y"}).fillna("N")
+    )
+    stock_df["Signed?"] = (
+        stock_df["Signed?"].replace({"X": "Y", "1.0": "Y", 1.0: "Y"}).fillna("N")
+    )
     stock_df["PriceXAmount"] = stock_df["Price"] * stock_df["Amount"]
     stock_df["Language"] = stock_df["Language"].replace(
         {(index + 1): name for index, name in enumerate(LANGUAGES)}

@@ -6,8 +6,8 @@ import requests_mock
 from typer.testing import CliRunner
 
 from mpu.cli import app
-from mpu.utils.pyopenxl_utils import EXCEL_ENGINE, format_and_save_df
 from mpu.excel_formats import STOCK_WITH_NEW_PRICE_COLUMNS_FORMAT
+from mpu.utils.pyopenxl_utils import EXCEL_ENGINE, format_and_save_df
 
 runner = CliRunner()
 
@@ -34,7 +34,9 @@ def save_stock_file(test_folder_cdir_path):
         stock_df.to_excel(excel_writer=writer, index=False, engine=EXCEL_ENGINE)
 
         format_and_save_df(
-            df=stock_df, writer=writer, format_config=STOCK_WITH_NEW_PRICE_COLUMNS_FORMAT
+            df=stock_df,
+            writer=writer,
+            format_config=STOCK_WITH_NEW_PRICE_COLUMNS_FORMAT,
         )
 
         return new_stock_file_path
