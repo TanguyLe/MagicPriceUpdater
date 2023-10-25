@@ -7,7 +7,7 @@ import pandas as pd
 
 from mpu.excel_formats import (STOCK_COLUMNS_FORMAT,
                                STOCK_WITH_NEW_PRICE_COLUMNS_FORMAT)
-from mpu.utils.pyopenxl_utils import EXCEL_ENGINE, format_and_save_df
+from mpu.utils.pyopenxl_utils import EXCEL_ENGINE, format_excel_df
 
 
 def get_stock_file_path(folder_path: Path, csv: bool = False) -> Path:
@@ -33,7 +33,7 @@ def save_stock_df_as_excel_formatted_file(
         STOCK_WITH_NEW_PRICE_COLUMNS_FORMAT if new_price else STOCK_COLUMNS_FORMAT
     )
 
-    writer = pd.ExcelWriter(path=str(file_path), engine=EXCEL_ENGINE)
-    df.to_excel(excel_writer=writer, index=False, engine=EXCEL_ENGINE)
+    with pd.ExcelWriter(path=str(file_path), engine=EXCEL_ENGINE) as writer:
+        df.to_excel(excel_writer=writer, index=False, engine=EXCEL_ENGINE)
 
-    format_and_save_df(df=df, writer=writer, format_config=cols_format)
+        format_excel_df(df=df, writer=writer, format_config=cols_format)

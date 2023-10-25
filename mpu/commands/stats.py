@@ -8,7 +8,7 @@ from mpu.excel_formats import (INDEX_NAME, LARGE_STATS_COLUMNS_FORMAT,
                                SHORT_STATS_COLUMNS_FORMAT)
 from mpu.stats_calculations import aggregate_data
 from mpu.stock_handling import prep_stock_df_for_stats
-from mpu.utils.pyopenxl_utils import EXCEL_ENGINE, format_and_save_df
+from mpu.utils.pyopenxl_utils import EXCEL_ENGINE, format_excel_df
 
 logger = logging.getLogger(__name__)
 
@@ -136,25 +136,25 @@ def main(stats_file_path: Path):
 
     logger.info("Saving the stats...")
 
-    writer = pd.ExcelWriter(path=str(stats_file_path), engine=EXCEL_ENGINE)
-    short_stats_df.round(2).to_excel(
-        excel_writer=writer, engine=EXCEL_ENGINE, sheet_name=SHORT_STATS_SHEET_NAME
-    )
-    large_stats_df.round(2).to_excel(
-        excel_writer=writer, engine=EXCEL_ENGINE, sheet_name=LARGE_STATS_SHEET_NAME
-    )
-    format_and_save_df(
-        df=short_stats_df.reset_index(),
-        writer=writer,
-        format_config=SHORT_STATS_COLUMNS_FORMAT,
-        sheet_name=SHORT_STATS_SHEET_NAME,
-    )
-    format_and_save_df(
-        df=large_stats_df.reset_index(),
-        writer=writer,
-        format_config=LARGE_STATS_COLUMNS_FORMAT,
-        sheet_name=LARGE_STATS_SHEET_NAME,
-    )
+    with pd.ExcelWriter(path=str(stats_file_path), engine=EXCEL_ENGINE) as writer:
+        short_stats_df.round(2).to_excel(
+            excel_writer=writer, engine=EXCEL_ENGINE, sheet_name=SHORT_STATS_SHEET_NAME
+        )
+        large_stats_df.round(2).to_excel(
+            excel_writer=writer, engine=EXCEL_ENGINE, sheet_name=LARGE_STATS_SHEET_NAME
+        )
+        format_excel_df(
+            df=short_stats_df.reset_index(),
+            writer=writer,
+            format_config=SHORT_STATS_COLUMNS_FORMAT,
+            sheet_name=SHORT_STATS_SHEET_NAME,
+        )
+        format_excel_df(
+            df=large_stats_df.reset_index(),
+            writer=writer,
+            format_config=LARGE_STATS_COLUMNS_FORMAT,
+            sheet_name=LARGE_STATS_SHEET_NAME,
+        )
 
     logger.info(f"Stats saved at {stats_file_path}.")
 

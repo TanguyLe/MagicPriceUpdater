@@ -66,7 +66,7 @@ PROPERTIES_MAP = {
 }
 
 
-def format_and_save_df(
+def format_excel_df(
     df: pd.DataFrame, writer: pd.ExcelWriter, format_config: dict, sheet_name="Sheet1"
 ):
     worksheet = writer.sheets[sheet_name]
@@ -80,4 +80,3 @@ def format_and_save_df(
                     excel_col_name=excel_col_name,
                     property_value=property_value,
                 )
-    writer.save()
