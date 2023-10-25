@@ -23,7 +23,7 @@ def aggregate_data(
     data: pd.DataFrame, index_name: str, group_name: str = None, index: Any = None
 ):
     if group_name is not None:
-        _stats_series = data.groupby(by=group_name)
+        _stats_series = data.groupby(by=group_name, observed=False)
     else:
         _stats_series = data
 
