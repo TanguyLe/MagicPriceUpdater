@@ -14,7 +14,7 @@ from mpu.utils.strategies_utils import CurrentPriceStrat, PriceUpdaterStrat
 app = typer.Typer()
 
 
-__version__ = "0.7.0"
+__version__ = "0.8.2"
 
 
 @app.command()
