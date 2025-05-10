@@ -88,7 +88,10 @@ class CardMarketClient(OAuthAuthenticatedClient):
     def get_stock_df(self) -> pd.DataFrame:
         logger.info("Getting the stock from Card Market...")
 
-        response = self.get_api_call(url=self.CARD_MARKET_API_URL / "stock/file")
+        response = self.get_api_call(
+            # Only MTG and with names in French
+            url=self.CARD_MARKET_API_URL / "stock/file?idGame=1&idLanguage=2"
+        )
         stock_string = response.json()["stock"]
 
         limit_count = response.headers.get("x-request-limit-count")
