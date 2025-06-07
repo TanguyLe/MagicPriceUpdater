@@ -52,6 +52,23 @@ class OAuthAuthenticatedClient:
 
         return response
 
+    def post_api_call(self, url: furl, data: Optional[dict] = None) -> requests.Response:
+        url_to_modify = url.copy()
+        self.auth.realm = url_to_modify.remove(args=True, fragment=True)
+        logger.info(f"Post request to {url}")
+
+        # For POST requests, we don't need to send data as XML unless specified
+        response = requests.post(url=url, json=data if data else {}, auth=self.auth)
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as error:
+            logger.error(str(error) + str(error.response.content))
+            raise error
+        finally:
+            logger.info(f"{response.status_code}: post request to {url}")
+
+        return response
+
     def put_api_call(self, data: dict, url: furl) -> requests.Response:
         url_to_modify = url.copy()
         self.auth.realm = url_to_modify.remove(args=True, fragment=True)

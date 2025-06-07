@@ -34,6 +34,6 @@ def save_stock_df_as_excel_formatted_file(
     )
 
     with pd.ExcelWriter(path=str(file_path), engine=EXCEL_ENGINE) as writer:
-        df.to_excel(excel_writer=writer, index=False, engine=EXCEL_ENGINE)
+        df.to_excel(excel_writer=writer, index=True, engine=EXCEL_ENGINE)
 
         format_excel_df(df=df, writer=writer, format_config=cols_format)
