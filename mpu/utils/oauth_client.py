@@ -45,6 +45,7 @@ class OAuthAuthenticatedClient:
         try:
             response.raise_for_status()
         except requests.HTTPError as error:
+            logger.error(response.text)
             logger.error(str(error) + str(error.response.content))
             raise error
         finally:
