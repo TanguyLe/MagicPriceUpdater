@@ -63,7 +63,7 @@ def main(
     stock_input_file_path = get_stock_file_path(folder_path=input_path, csv=True)
 
     logger.info(f"Loading stock excel from {stock_input_file_path}...")
-    stock_df = pd.read_csv(stock_input_file_path)
+    stock_df = pd.read_csv(stock_input_file_path, index_col="idArticle")
     stock_df = stock_df.fillna("")
     logger.info("Stock loaded.")
 

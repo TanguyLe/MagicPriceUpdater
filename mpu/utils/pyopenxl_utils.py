@@ -35,7 +35,7 @@ def is_okay_col(
 def get_excel_col_names(df: pd.DataFrame, col_name: str) -> List[str]:
     """Returns the letter to access the excel position of a column"""
     return [
-        get_column_letter(index + 1)
+        get_column_letter(index + 2)
         for index, col in enumerate(list(df.columns))
         if is_okay_col(col_name=col_name, df_index_name=col)
     ]
