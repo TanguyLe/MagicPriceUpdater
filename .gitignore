@@ -150,3 +150,9 @@ explo.ipynb
 *~lock*
 
 .local
+
+market_extract
+notUpdatedStock*
+stock.csv
+stock.xlsx
+stockStats.xlsx
