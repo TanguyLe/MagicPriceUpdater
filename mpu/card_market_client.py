@@ -12,7 +12,7 @@ from mpu.utils.oauth_client import OAuthAuthenticatedClient
 
 logger = logging.getLogger(__name__)
 
-MAX_WAIT_TIME = 60 * 20
+MAX_WAIT_TIME = 60 * 90
 POLL_INTERVAL = 30
 DEFAULT_LANGUAGE = "French"
 LANGUAGES = (
@@ -118,9 +118,8 @@ class CardMarketClient(OAuthAuthenticatedClient):
         exports = exports_data["stockExports"]
         logger.info(f"Found {len(exports)} exports")
         
-        # Filter exports to only those less than 1 hour old
         recent_exports = self._filter_recent_exports(exports)
-        logger.info(f"Found {len(recent_exports)} recent exports (< 1 hour old)")
+        logger.info(f"Found {len(recent_exports)} recent exports (< 2 hour old)")
         
         for export in recent_exports:
             if export.get("status") == "finished":
@@ -138,10 +137,10 @@ class CardMarketClient(OAuthAuthenticatedClient):
         return self._trigger_new_export()
 
     def _filter_recent_exports(self, exports: list) -> list:
-        """Filter exports to only include those less than 1 hour old."""
+        """Filter exports to only include those less than 2 hour old."""
         recent_exports = []
         current_time = datetime.now(timezone.utc)
-        one_hour = timedelta(hours=1)
+        one_hour = timedelta(hours=2)
         
         for export in exports:
             started_at = export.get("startedAt")
@@ -233,7 +232,7 @@ class CardMarketClient(OAuthAuthenticatedClient):
         """Normalize article data to match expected CSV format with exact columns."""
         # Define the exact columns we want in the exact order
         expected_columns = [
-            "idArticle", "idProduct", "English Name", "Exp.", "Price", 
+            "idArticle", "idProduct", "English Name", "Local Name", "Exp.", "Price", 
             "Language", "Condition", "Foil?", "Signed?", "Comments", "Amount", "onSale"
         ]
         
@@ -245,12 +244,14 @@ class CardMarketClient(OAuthAuthenticatedClient):
             normalized_article["idArticle"] = article.get("idArticle", "")
             normalized_article["idProduct"] = article.get("idProduct", "")
             
-            # Extract English Name from product object
+            # Extract names and expansion from product object
             if "product" in article and isinstance(article["product"], dict):
                 normalized_article["English Name"] = article["product"].get("enName", "")
+                normalized_article["Local Name"] = article["product"].get("locName", "")
                 normalized_article["Exp."] = article["product"].get("abbreviation", "")
             else:
                 normalized_article["English Name"] = ""
+                normalized_article["Local Name"] = ""
                 normalized_article["Exp."] = ""
             
             normalized_article["Price"] = article.get("price", "")
